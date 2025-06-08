@@ -7,3 +7,5 @@ node_modules
 .gitignore
 .dockerignore
 .vscode/
+../subject_inception.pdf
+../notes
