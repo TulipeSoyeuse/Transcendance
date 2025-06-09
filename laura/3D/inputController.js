@@ -42,30 +42,30 @@ export class PlayerInput {
             this.rightStartZ = rightPaddle.position.z;
         }
 
-        if (this.inputMap["w"] && leftPaddle) {
+        if (this.inputMap["o"] && leftPaddle) {
             leftPaddle.position.z += 0.1;
         }
-        if (this.inputMap["a"] && leftPaddle) {
+        if (this.inputMap["l"] && leftPaddle) {
             leftPaddle.position.z -= 0.1;
         }
 
         if (this.inputMap["q"] && rightPaddle) {
             rightPaddle.position.z += 0.1;
         }
-        if (this.inputMap["x"] && rightPaddle) {
+        if (this.inputMap["w"] && rightPaddle) {
             rightPaddle.position.z -= 0.1;
         }
 
-        if (this.inputMap[" "] && leftPaddle && !this.leftAnimating) {
+        if (this.inputMap["p"] && leftPaddle && !this.leftAnimating) {
             this.leftAnimating = true;
-            animateLeftPaddle(leftPaddle, this.leftStartZ, () => {
+            animateLeftPaddle(leftPaddle,  () => {
                 this.leftAnimating = false;
             });
         }
 
-        if (this.inputMap["m"] && rightPaddle && !this.rightAnimating) {
+        if (this.inputMap["d"] && rightPaddle && !this.rightAnimating) {
             this.rightAnimating = true;
-            animateRightPaddle(rightPaddle, this.rightStartZ, () => {
+            animateRightPaddle(rightPaddle,  () => {
                 this.rightAnimating = false;
             });
         }
