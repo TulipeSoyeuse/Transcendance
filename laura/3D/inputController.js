@@ -1,0 +1,73 @@
+
+import { animateLeftPaddle, animateRightPaddle } from "./animation.js";
+// import * as BABYLON from 'babylonjs';
+// import Ammo from 'ammo.js';
+
+export class PlayerInput {
+    constructor(scene) {
+        scene.actionManager = new BABYLON.ActionManager(scene);
+        this.inputMap = {};
+
+        this.leftStartZ = null;
+        this.rightStartZ = null;
+
+        this.leftAnimating = false;
+        this.rightAnimating = false;
+
+        scene.actionManager.registerAction(
+            new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, (evt) => {
+                this.inputMap[evt.sourceEvent.key] = true;
+            })
+        );
+        scene.actionManager.registerAction(
+            new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, (evt) => {
+                this.inputMap[evt.sourceEvent.key] = false;
+            })
+        );
+
+        scene.onBeforeRenderObservable.add(() => {
+            this._updateFromKeyboard(scene);
+        });
+    }
+
+    _updateFromKeyboard(scene) {
+        const leftPaddle = scene.getMeshByName("paddleLeft_hitbox");
+        const rightPaddle = scene.getMeshByName("paddleRight_hitbox");
+
+        // Initialiser la position de départ une seule fois
+        if (leftPaddle && this.leftStartZ === null) {
+            this.leftStartZ = leftPaddle.position.z;
+        }
+        if (rightPaddle && this.rightStartZ === null) {
+            this.rightStartZ = rightPaddle.position.z;
+        }
+
+        if (this.inputMap["w"] && leftPaddle) {
+            leftPaddle.position.z += 0.1;
+        }
+        if (this.inputMap["a"] && leftPaddle) {
+            leftPaddle.position.z -= 0.1;
+        }
+
+        if (this.inputMap["q"] && rightPaddle) {
+            rightPaddle.position.z += 0.1;
+        }
+        if (this.inputMap["x"] && rightPaddle) {
+            rightPaddle.position.z -= 0.1;
+        }
+
+        if (this.inputMap[" "] && leftPaddle && !this.leftAnimating) {
+            this.leftAnimating = true;
+            animateLeftPaddle(leftPaddle, this.leftStartZ, () => {
+                this.leftAnimating = false;
+            });
+        }
+
+        if (this.inputMap["m"] && rightPaddle && !this.rightAnimating) {
+            this.rightAnimating = true;
+            animateRightPaddle(rightPaddle, this.rightStartZ, () => {
+                this.rightAnimating = false;
+            });
+        }
+    }
+}
