@@ -1,18 +1,18 @@
 'use strict'
 
 import * as path from 'path'
-import AutoLoad from '@fastify/autoload'
-
-// Pass --options via CLI arguments in command to enable these options.
+import fastifyStatic from '@fastify/static';
 import fastify from 'fastify'
+import routes from './routes/root.js'
 
 const server = fastify()
 
-server.register(require('./routes/root.js'))
+server.register(routes)
 
-server.get('/ping', async (request, reply) => {
-  return 'pong\n'
-})
+server.register(fastifyStatic, {
+  root: path.join(__dirname, '..', 'public'),
+  prefix: '/',
+});
 
 server.listen({ port: 8080 }, (err, address) => {
   if (err) {
