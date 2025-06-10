@@ -1,5 +1,6 @@
 
 import { animateLeftPaddle, animateRightPaddle } from "./animation.js";
+import { serveBall } from "./animation.js"
 // import * as BABYLON from 'babylonjs';
 // import Ammo from 'ammo.js';
 
@@ -13,6 +14,8 @@ export class PlayerInput {
 
         this.leftAnimating = false;
         this.rightAnimating = false;
+
+        this.ballAnimating = false;
 
         scene.actionManager.registerAction(
             new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, (evt) => {
@@ -68,6 +71,17 @@ export class PlayerInput {
             animateRightPaddle(rightPaddle,  () => {
                 this.rightAnimating = false;
             });
+        }
+
+        if(this.inputMap["s"] && !this.ballAnimating) {
+            const ball = scene.getMeshByName("pingPongBall");
+            if(ball) {
+                this.ballAnimating = true;
+                serveBall(ball, scene, () => {
+                    this.ballAnimating = false;  
+                }
+            );
+            }
         }
     }
 }
