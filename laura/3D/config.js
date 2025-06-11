@@ -24,7 +24,7 @@ export var setPhysicImpostor = function (pingPongBall, ground, groundMaterial, s
         pingPongBall.physicsImpostor = new BABYLON.PhysicsImpostor(
             pingPongBall,
             BABYLON.PhysicsImpostor.SphereImpostor,
-            { mass: 1, restitution: 0.7 },
+            { mass: 0.40, restitution: 0.9 },
             scene
           );
 }

@@ -19,9 +19,6 @@ stop:
 cleanimg:
 			@docker image prune -a
 
-cleanvol:
-			@docker volume rm $(shell docker volume ls -q)
-
 fclean:			down cleanimg
 
 re:			fclean all

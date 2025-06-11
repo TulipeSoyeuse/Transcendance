@@ -1,5 +1,6 @@
 
 import { animateLeftPaddle, animateRightPaddle } from "./animation.js";
+import { serveBall } from "./animation.js"
 // import * as BABYLON from 'babylonjs';
 // import Ammo from 'ammo.js';
 
@@ -13,6 +14,8 @@ export class PlayerInput {
 
         this.leftAnimating = false;
         this.rightAnimating = false;
+
+        this.ballAnimating = false;
 
         scene.actionManager.registerAction(
             new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, (evt) => {
@@ -42,32 +45,43 @@ export class PlayerInput {
             this.rightStartZ = rightPaddle.position.z;
         }
 
-        if (this.inputMap["w"] && leftPaddle) {
+        if (this.inputMap["o"] && leftPaddle) {
             leftPaddle.position.z += 0.1;
         }
-        if (this.inputMap["a"] && leftPaddle) {
+        if (this.inputMap["l"] && leftPaddle) {
             leftPaddle.position.z -= 0.1;
         }
 
         if (this.inputMap["q"] && rightPaddle) {
             rightPaddle.position.z += 0.1;
         }
-        if (this.inputMap["x"] && rightPaddle) {
+        if (this.inputMap["w"] && rightPaddle) {
             rightPaddle.position.z -= 0.1;
         }
 
-        if (this.inputMap[" "] && leftPaddle && !this.leftAnimating) {
+        if (this.inputMap["p"] && leftPaddle && !this.leftAnimating) {
             this.leftAnimating = true;
-            animateLeftPaddle(leftPaddle, this.leftStartZ, () => {
+            animateLeftPaddle(leftPaddle,  () => {
                 this.leftAnimating = false;
             });
         }
 
-        if (this.inputMap["m"] && rightPaddle && !this.rightAnimating) {
+        if (this.inputMap["d"] && rightPaddle && !this.rightAnimating) {
             this.rightAnimating = true;
-            animateRightPaddle(rightPaddle, this.rightStartZ, () => {
+            animateRightPaddle(rightPaddle,  () => {
                 this.rightAnimating = false;
             });
+        }
+
+        if(this.inputMap["s"] && !this.ballAnimating) {
+            const ball = scene.getMeshByName("pingPongBall");
+            if(ball) {
+                this.ballAnimating = true;
+                serveBall(ball, scene, () => {
+                    this.ballAnimating = false;  
+                }
+            );
+            }
         }
     }
 }

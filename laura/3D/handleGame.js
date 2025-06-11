@@ -1,6 +1,9 @@
 // import * as BABYLON from 'babylonjs';
 // import Ammo from 'ammo.js';
 
+
+// TODO : reset si la balle est bloquée
+
 export class GameManager {
     constructor(scene, pingPongBall, floor) {
         this.scene = scene;
@@ -8,6 +11,19 @@ export class GameManager {
         this.floor = floor;
         this.player1Score = 0;
         this.player2Score = 0;
+
+
+        // limiter la vitesse de la balle
+        scene.onBeforeRenderObservable.add(() => {
+            const maxSpeed = 13;
+            if(this.ball.physicsImpostor) {
+                const velocity = this.ball.physicsImpostor.getLinearVelocity();
+                if (velocity.length() > maxSpeed) {
+                    const newVelocity = velocity.normalize().scale(maxSpeed);
+                    pingPongBall.physicsImpostor.setLinearVelocity(newVelocity);
+                }
+            }
+        });
 
         this._createLimits();
         this._createGUI();
@@ -21,7 +37,7 @@ export class GameManager {
         const center = this.floor.position;
     
         const zoneThickness = 0.2;
-        const extraMargin = 1; // marge autour de la table
+        const extraMargin = 0.5; // marge autour de la table
         const yPos = center.y + zoneThickness / 2;
     
         // Helper 
