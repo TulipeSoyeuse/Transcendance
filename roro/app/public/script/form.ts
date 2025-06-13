@@ -1,6 +1,6 @@
 
-const loginform = document.getElementById('LoginForm') as HTMLFormElement;
-const registerform = document.getElementById('RegisterForm') as HTMLFormElement;
+const loginform = document.getElementById('LoginForm') as HTMLElement;
+const registerform = document.getElementById('RegisterForm') as HTMLElement;
 
 function openLogin() {
     loginform?.classList.remove('hidden');
@@ -20,24 +20,28 @@ function closeLForm() {
 
 registerform?.addEventListener('submit', function (event) {
     event.preventDefault();
-    const formData = new FormData(registerform);
+    const form = registerform?.querySelector('form') as HTMLFormElement;
+    const formData = new FormData(form);
     const username = formData.get('username')?.toString().trim() || '';
     const email = formData.get('email')?.toString().trim() || '';
     const password = formData.get('password')?.toString() || '';
+    console.log("password: %s", password)
+    console.log("username: %s", username)
+    console.log("email: %s", email)
     // Basic validation
-    if (!email) {
-        alert('Email is required');
-        return;
-    }
-
     if (password.length < 6) {
         alert('Password must be at least 6 characters');
         return;
     }
 
-    const res = fetch('/api/check-user', {
+    const res = fetch('/api/check-username', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: username }),
     });
+    res.then((res) => {
+        console.log(res)
+    });
+
+    form.submit();
 });

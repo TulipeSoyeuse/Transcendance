@@ -3,18 +3,36 @@ import fastifyStatic from '@fastify/static';
 import fastify from 'fastify'
 import root from './routes/root'
 import dbPlugin from './plugins/dbplugin';
-import formBody from '@fastify/formbody';
+import formbody from '@fastify/formbody';
+import fastifySession from '@fastify/session'
+import fastifyCookie from '@fastify/cookie'
+
 const server = fastify()
 
-server.register(root.routes)
-server.register(root.api)
-// add fastify.database everywhere in the backend
-server.register(dbPlugin)
-server.register(formBody)
+// PLUGINS (register plugins first or you're gonna have issue)
+server.register(formbody)
+server.register(fastifyCookie)
+server.register(fastifySession, {
+  cookieName: 'sessionId',
+  secret: '2c8c3c1549e14bfc7f124ed4a8dbbb94',
+  cookie: { maxAge: 1800000, secure: "auto" }
+})
 server.register(fastifyStatic, {
   root: path.join(__dirname, '..', 'public'),
   prefix: '/',
 });
+// add fastify.database everywhere in the backend
+server.register(dbPlugin)
+// --------------------------
+
+//all user endpoint here
+server.register(root.routes)
+
+//all api routes (and hooks ?) here
+server.register(root.api)
+
+//all request linked to authentification (and sessions managment ?) here
+server.register(root.auth)
 
 server.listen({ port: 8080 }, (err, address) => {
   if (err) {

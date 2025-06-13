@@ -5,9 +5,8 @@ import path from 'path';
 import fs from 'fs';
 
 export default fp(async function (fastify: FastifyInstance, options: FastifyPluginOptions) {
-    const db = new sqlite3.Database('app.sqlite')
+    const db = new sqlite3.Database('src/db/db.sqlite3')
     const schema = fs.readFileSync(path.join(__dirname, '../db/schema.sql'), 'utf8');
-    db.exec(schema);
 
     db.exec(schema, (err) => {
         if (err) {

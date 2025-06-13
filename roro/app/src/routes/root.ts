@@ -1,8 +1,7 @@
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { getroot } from "./controllers/root.controller";
 import { check_user } from "./controllers/api.controller";
-import { request } from 'http';
-import { REPL_MODE_SLOPPY } from 'repl';
+import { register, login } from "./controllers/auth.controller";
 
 /**
  * A plugin that provide encapsulated routes
@@ -20,9 +19,14 @@ async function routes(fastify: FastifyInstance, options: FastifyPluginOptions) {
     fastify.get('/', getroot);
 }
 
+async function auth(fastify: FastifyInstance, options: FastifyPluginOptions) {
+    //authentification routes
+    fastify.post('/register', register(fastify))
+}
+
 async function api(fastify: FastifyInstance, options: FastifyPluginOptions) {
     // api/user-check
     fastify.post('/api/check-username', check_user(fastify))
 };
 
-export default { routes, api };
+export default { routes, api, auth };
