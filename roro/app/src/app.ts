@@ -9,7 +9,7 @@ import fastifyCookie from '@fastify/cookie'
 
 const server = fastify()
 
-// PLUGINS (register plugins first or you're gonna have issue)
+// PLUGINS (register plugins first or problems)
 server.register(formbody)
 server.register(fastifyCookie)
 server.register(fastifySession, {
@@ -21,7 +21,7 @@ server.register(fastifyStatic, {
   root: path.join(__dirname, '..', 'public'),
   prefix: '/',
 });
-// add fastify.database everywhere in the backend
+// add fastify.database with customs helpers function everywhere within fastify instance (refer to custom.d.ts)
 server.register(dbPlugin)
 // --------------------------
 

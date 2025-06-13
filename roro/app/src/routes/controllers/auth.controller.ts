@@ -9,25 +9,63 @@ interface RegisterBody {
     password: string;
 }
 
+interface LoginBody {
+    username: string;
+    password: string;
+}
+
+//usual query
+const insertuser = 'INSERT INTO user (username, email, password) VALUES (?, ?, ?)'
+
 export function register(fastify: FastifyInstance) {
     // add a new entry to the database user, at this point all checks for the credential
     // used should have been done
     return async function (request: FastifyRequest<{ Body: RegisterBody }>, reply: FastifyReply) {
-        const insert = fastify.database.prepare('INSERT INTO user (username, email, password) VALUES (?, ?, ?)')
         const { username, email, password } = request.body;
         bcrypt.hash(password, saltRounds, function (err, hash) {
             if (err) {
                 console.error(err)
             }
             else {
-                insert.run([username, email, hash], (err) => console.error(err?.message))
-                console.log("new user entry:\n username:%s, email:%s, password:%s", username, email, hash)
+                fastify.database.prepare(insertuser).all([username, email, hash], (err) => console.error(err?.message))
+                console.log("new user entry:\nusername:%s, email:%s, password:%s", username, email, hash)
             }
         })
+        reply.sendFile('index.html')
     }
 }
 
 export function login(fastify: FastifyInstance) {
-    // TODO: check credentials and return cookie + user index page
-    return async function (request: FastifyRequest<{ Body: RegisterBody }>, reply: FastifyReply) { return reply.sendFile('index.html') }
+    // TODO: return user index page
+    return async function (request: FastifyRequest<{ Body: LoginBody }>, reply: FastifyReply) {
+        const { username, password } = request.body;
+        console.log("request login for: %s, with password %s", username, password);
+        const rows = await fastify.database.fetch_all(fastify, 'SELECT id, password FROM user WHERE username = ?', [username])
+        if (!rows || rows.length === 0) {
+            console.error('query returned empty');
+            reply.redirect('/');
+            return;
+        }
+        else {
+            const user = rows[0]
+            if (await bcrypt.compare(password, user.password)) {
+                console.log("user %s logged", username);
+                request.session.authenticated = true;
+                request.session.userId = user.id;
+            }
+            else {
+                console.log("wrong password");
+            }
+            reply.redirect("/");
+        }
+    }
+}
+
+export function logout(FastifyInstance: FastifyInstance) {
+    return async function (request: FastifyRequest, reply: FastifyReply) {
+        request.session.authenticated = false;
+        request.session.destroy(err => {
+            reply.redirect("/");
+        })
+    }
 }
