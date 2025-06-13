@@ -27,11 +27,11 @@ export function register(fastify: FastifyInstance) {
                 console.error(err)
             }
             else {
-                fastify.database.prepare(insertuser).all([username, email, hash], (err) => console.error(err?.message))
+                fastify.database.prepare(insertuser).all([username, email, hash], (err: Error) => console.error(err?.message))
                 console.log("new user entry:\nusername:%s, email:%s, password:%s", username, email, hash)
             }
         })
-        reply.sendFile('index.html')
+        return reply.redirect("/");
     }
 }
 
@@ -40,11 +40,10 @@ export function login(fastify: FastifyInstance) {
     return async function (request: FastifyRequest<{ Body: LoginBody }>, reply: FastifyReply) {
         const { username, password } = request.body;
         console.log("request login for: %s, with password %s", username, password);
-        const rows = await fastify.database.fetch_all(fastify, 'SELECT id, password FROM user WHERE username = ?', [username])
+        const rows = await fastify.database.fetch_all('SELECT id, password FROM user WHERE username = ?', [username])
         if (!rows || rows.length === 0) {
             console.error('query returned empty');
-            reply.redirect('/');
-            return;
+            return reply.redirect('/');
         }
         else {
             const user = rows[0]
@@ -56,7 +55,7 @@ export function login(fastify: FastifyInstance) {
             else {
                 console.log("wrong password");
             }
-            reply.redirect("/");
+            return reply.redirect("/");
         }
     }
 }
@@ -65,7 +64,7 @@ export function logout(FastifyInstance: FastifyInstance) {
     return async function (request: FastifyRequest, reply: FastifyReply) {
         request.session.authenticated = false;
         request.session.destroy(err => {
-            reply.redirect("/");
+            return reply.redirect("/");
         })
     }
 }

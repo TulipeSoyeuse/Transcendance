@@ -14,6 +14,7 @@ server.register(formbody)
 server.register(fastifyCookie)
 server.register(fastifySession, {
   cookieName: 'sessionId',
+  //TODO: secret should be in .ENV file
   secret: '2c8c3c1549e14bfc7f124ed4a8dbbb94',
   cookie: { maxAge: 1800000, secure: "auto" }
 })
@@ -23,6 +24,7 @@ server.register(fastifyStatic, {
 });
 // add fastify.database with customs helpers function everywhere within fastify instance (refer to custom.d.ts)
 server.register(dbPlugin)
+
 // --------------------------
 
 //all user endpoint here

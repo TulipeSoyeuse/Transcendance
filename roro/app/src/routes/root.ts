@@ -16,7 +16,7 @@ async function routes(fastify: FastifyInstance, options: FastifyPluginOptions) {
     })
 
     // index.html
-    fastify.get('/', getroot);
+    fastify.get('/', getroot(fastify));
 
 }
 

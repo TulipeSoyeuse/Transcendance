@@ -1,15 +1,16 @@
-import sqlite3 from 'sqlite3';
+import 'fastify'
+import { Database } from '../src/plugins/dbplugin';
 
-declare module 'sqlite3' {
-    interface Database {
-        fetch_all: Function
-        fetch_one: Function
-    }
-}
+// declare module 'Database' {
+//     interface Database {
+//         async fetch_all(query: string, params?: any[]): Promise<any[]>;
+//         async fetch_one(query: string, params?: any[]): Promise<any>;
+//     }
+// }
 
 declare module 'fastify' {
     interface FastifyInstance {
-        database: sqlite3.Database;
+        database: Database;
     }
 
     interface Session {
