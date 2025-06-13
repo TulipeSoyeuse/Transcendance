@@ -1,29 +1,48 @@
-
 import { renderLoginForm } from "./routes/loginForm.ts";
-import { renderWelcomePage } from "./routes/welcomePage.ts";
-import { setContent } from "./components/layout.ts";
+import { renderPlayMenu, renderTournamentMenu, renderGameWindow } from "./routes/playMenu.ts";
+import { renderChat } from "./routes/chat.ts";
+import { renderAccount } from "./routes/account.ts";
 
-export function handleLogin() {;
+export function handleLogin() {
   localStorage.setItem("isSignedIn", "true");
   renderApp();
 }
 
-export function handleLogout() {
-  localStorage.removeItem("isSignedIn");
-  renderApp();
+export function renderApp(push = true) {
+  let isSignedIn = localStorage.getItem("isSignedIn") === "true";
+  isSignedIn ? renderPlayMenu(push) : renderLoginForm();
 }
 
-export function renderApp() {
-  let isSignedIn = localStorage.getItem("isSignedIn") === "true";
-  isSignedIn ? renderWelcomePage() : renderLoginForm();
+function handleRoutes(path: string) {
+  switch (path) {
+    case "/play":
+      renderPlayMenu(false);
+      break;
+    case "/account":
+      renderAccount(false);
+      break;
+    case "/tournament":
+      renderTournamentMenu(false);
+      break;
+    case "/game":
+      renderGameWindow(false);
+      break;
+    case "/chat":
+      renderChat(false);
+      break;
+    default:
+      renderApp(false);
+      break;
+  }
 }
 
 window.addEventListener("popstate", (event) => {
-  const view = event.state?.view;
-  if (view)
-    setContent(view, false);
+  const path = window.location.pathname;
+  handleRoutes(path);
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  renderApp();
+  const path = window.location.pathname;
+  // renderApp(false);
+  handleRoutes(path);
 });
