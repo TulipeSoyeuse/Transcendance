@@ -43,6 +43,6 @@ export default fp(async function (fastify: FastifyInstance, options: FastifyPlug
             console.log('Database initialized successfully.');
         }
     });
-
+    // fastify.database == db
     fastify.decorate('database', db);
 });

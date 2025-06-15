@@ -5,7 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "build": "tsc -p tsconfig.json && npx @tailwindcss/cli -i public/styles/tailwind.css -o public/styles/compiled.css",
-    "start": "tsc -p tsconfig.json && node src/app.js",
+    "start": "node src/app.js",
     "dev": "./run_dev.sh"
   },
   "author": "",
