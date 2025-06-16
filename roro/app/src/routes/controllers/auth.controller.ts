@@ -36,7 +36,6 @@ export function register(fastify: FastifyInstance) {
 }
 
 export function login(fastify: FastifyInstance) {
-    // TODO: return user index page
     return async function (request: FastifyRequest<{ Body: LoginBody }>, reply: FastifyReply) {
         const { username, password } = request.body;
         console.log("request login for: %s, with password %s", username, password);

@@ -21,14 +21,14 @@ async function authRoutes(fastify, options) {
       return reply.code(400).send('Missing name, email, or password');
     }
     try {
-      const hashedPwd = await bcrypt.hash(password, 10); // hashing pwd with limit 10 char
+      const hashedPwd = await bcrypt.hash(password, 10); //
       const twofa = speakeasy.generateSecret({ name: `MyApp (${email})` });
       await runAsync(
         `INSERT INTO form_data (name, email, password, twofa_secret) VALUES (?, ?, ?, ?)`,
         [name, email, hashedPwd, twofa.base32] // base32 is the format speakeasy uses for storage
       );
- 
-        // Optionally return QR code or secret to enable 2FA on the frontend
+
+      // Optionally return QR code or secret to enable 2FA on the frontend
       const qrCodeDataUrl = await qrcode.toDataURL(twofa.otpauth_url);
 
       return reply.send({
@@ -67,11 +67,11 @@ async function authRoutes(fastify, options) {
 
 
       return reply.send({ msg: 'Password valid, now verify 2FA' });
-      
-      } catch (err) {
-        console.error('DB error:', err);
-        return reply.code(500).send('Failed to sign in');
-      }
+
+    } catch (err) {
+      console.error('DB error:', err);
+      return reply.code(500).send('Failed to sign in');
+    }
   });
 
   fastify.get('/protected', { preValidation: [fastify.authenticate] }, async (request, reply) => { // protected route to check JWT
@@ -80,7 +80,7 @@ async function authRoutes(fastify, options) {
     return { msg: `Hello ${user.name}, you accessed a protected route!` };
   });
 
-  
+
   fastify.post('/setup-2fa', async (request, reply) => {
     const { name } = request.body;
 

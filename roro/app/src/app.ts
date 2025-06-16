@@ -4,8 +4,8 @@ import fastify from 'fastify'
 import root from './routes/root'
 import dbPlugin from './plugins/dbplugin';
 import formbody from '@fastify/formbody';
-import fastifySession from '@fastify/session'
-import fastifyCookie from '@fastify/cookie'
+import fastifySession from '@fastify/session';
+import fastifyCookie from '@fastify/cookie';
 
 const server = fastify()
 
