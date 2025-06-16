@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sign In / Sign Up</title>
+</head>
+<body>
+
+  <h2>Welcome</h2>
+
+  <button id="showSignIn">Sign In</button>
+  <button id="showSignUp">Sign Up</button>
+
+  <div id="signInForm" style="display:none; margin-top:20px;">
+    <h3>Sign In</h3>
+    <form id="formSignIn">
+      <label>Name:</label><br>
+      <input type="text" name="name" required /><br><br>
+      
+      <label>Password:</label><br>
+      <input type="password" name="password" required /><br><br>
+      
+      <button type="submit">Submit</button>
+    </form>
+    <div id="signInMessage" style="color:red;"></div>
+  </div>
+
+  <div id="signUpForm" style="display:none; margin-top:20px;">
+    <h3>Sign Up</h3>
+    <form id="formSignUp">
+      <label>Name:</label><br>
+      <input type="text" name="name" required /><br><br>
+
+      <label>Email:</label><br>
+      <input type="email" name="email" required /><br><br>
+
+      <label>Password:</label><br>
+      <input type="password" name="password" required /><br><br>
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <div id="signUpMessage" style="color:red;"></div>
+  </div>
+    <div id="qr-container" style="margin-top: 20px; display: none;">
+      <p>Scan this QR code with your Authenticator app:</p>
+      <img id="qr" style="width: 200px; height: 200px;" />
+    </div>
+
+    <div id="otp-section" style="margin-top: 10px; display: none;">
+      <label>Enter the 6-digit code from your app:</label><br>
+      <input type="text" id="otp" placeholder="123456" /><br><br>
+      <button onclick="verifyOTP()">Verify OTP</button>
+    </div>
+  <!-- </div> -->
+
+  <script src="scripts/auth.js"></script>
+   <!-- // tesst -->
+  <button onclick="testProtectedRoute()">Test Protected Route</button>
+</body>
+</html>
