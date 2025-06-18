@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
-import { getroot, getgame } from "./controllers/root.controller";
+import { getRoot, getGame, getAccount } from "./controllers/root.controller";
 import { check_user } from "./controllers/api.controller";
 import { register, login, logout } from "./controllers/auth.controller";
 
@@ -16,9 +16,13 @@ async function routes(fastify: FastifyInstance, options: FastifyPluginOptions) {
     })
 
     // index.html
-    fastify.get('/', getroot(fastify));
-    fastify.get('/game/pong', getgame(fastify));
+    fastify.get('/', getRoot(fastify));
 
+    // game
+    fastify.get('/game/pong', getGame(fastify));
+
+    // account.html
+    fastify.get('/account', getAccount(fastify));
 }
 
 async function auth(fastify: FastifyInstance, options: FastifyPluginOptions) {

@@ -14,8 +14,11 @@ async function routes(fastify, options) {
         return { reply: "pong" };
     });
     // index.html
-    fastify.get('/', (0, root_controller_1.getroot)(fastify));
-    fastify.get('/game/pong', (0, root_controller_1.getgame)(fastify));
+    fastify.get('/', (0, root_controller_1.getRoot)(fastify));
+    // game
+    fastify.get('/game/pong', (0, root_controller_1.getGame)(fastify));
+    // account.html
+    fastify.get('/account', (0, root_controller_1.getAccount)(fastify));
 }
 async function auth(fastify, options) {
     //authentification routes

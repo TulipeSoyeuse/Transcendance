@@ -1,4 +1,3 @@
-
 const loginform = document.getElementById('LoginForm') as HTMLElement;
 const registerform = document.getElementById('RegisterForm') as HTMLElement;
 

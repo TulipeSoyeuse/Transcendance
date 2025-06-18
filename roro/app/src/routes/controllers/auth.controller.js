@@ -9,7 +9,7 @@ exports.logout = logout;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const saltRounds = 10;
 //usual query
-const insertuser = 'INSERT INTO user (username, email, password) VALUES (?, ?, ?)';
+const insertuser = 'INSERT INTO user (username, email, password, created_at) VALUES (?, ?, ?, date(?))';
 function register(fastify) {
     // add a new entry to the database user, at this point all checks for the credential
     // used should have been done
@@ -20,7 +20,7 @@ function register(fastify) {
                 console.error(err);
             }
             else {
-                fastify.database.prepare(insertuser).all([username, email, hash], (err) => console.error(err?.message));
+                fastify.database.prepare(insertuser).all([username, email, hash, Date()], (err) => console.error(err?.message));
                 console.log("new user entry:\nusername:%s, email:%s, password:%s", username, email, hash);
             }
         });

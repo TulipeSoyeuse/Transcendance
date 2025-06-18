@@ -4,40 +4,37 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.navbar = navbar;
-exports.getroot = getroot;
-exports.getgame = getgame;
+exports.getRoot = getRoot;
+exports.getAccount = getAccount;
+exports.getGame = getGame;
 const fs_1 = __importDefault(require("fs"));
 async function navbar(fastify, request, html) {
     const username = await fastify.database.fetch_one('SELECT username from user where id = ?', [request.session.userId]);
     const isAuth = request.session.authenticated;
     // Inject dynamic buttons
-    const rendered = html.replace(`<!-- NAV_HEADER -->`, isAuth
-        ? `<span class="text-gray-700 mr-4">${username.username}</span>
-             <a href="/logout"
-                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-               Logout
-             </a>`
-        : `<button onclick="openLogin()"
-              class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-              Login
-            </button>
-            <button onclick="openRegister()"
-              class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-              Register
-            </button>`);
+    const rendered = html.replace(`<!-- Navigation -->`, isAuth
+        ? fs_1.default.readFileSync("./public/navbar/logged.html", "utf8").replace("USERNAME", username.username)
+        : fs_1.default.readFileSync("./public/navbar/default.html", "utf8"));
     return rendered;
 }
-function getroot(fastify) {
+function getRoot(fastify) {
     return async function (request, reply) {
         let html = fs_1.default.readFileSync("./public/index.html", "utf8");
         const isAuth = request.session.authenticated;
         const username = await fastify.database.fetch_one('SELECT username from user where id = ?', [request.session.userId]);
         // Inject dynamic buttons
         html = await navbar(fastify, request, html);
-        reply.header("Content-Type", "text/html").send(html);
+        return reply.header("Content-Type", "text/html").send(html);
     };
 }
-function getgame(fastify) {
+function getAccount(fastify) {
+    return async function (request, reply) {
+        if (!request.session.authenticated)
+            reply.redirect("/");
+        return reply.sendFile("account.html");
+    };
+}
+function getGame(fastify) {
     return async function (request, reply) {
         return reply.sendFile('pong.html');
     };
