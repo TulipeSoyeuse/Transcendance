@@ -1,7 +1,8 @@
 //import * as BABYLON from 'babylonjs';
 import { animateLeftPaddle, animateRightPaddle, serveBall } from "./animation.js";
 // import * as BABYLON from 'babylonjs';
-const Ammo = require("ammo.js");
+/// <reference types="babylonjs" />
+/// <reference types="babylonjs-gui" />
 export class PlayerInput {
     constructor(scene) {
         scene.actionManager = new BABYLON.ActionManager(scene);

@@ -1,7 +1,10 @@
 //import * as BABYLON from 'babylonjs';
+import { AmmoJSPlugin } from "@babylonjs/core";
 import { setPhysicImpostor } from "./config.js";
 // depuis public/script/game/scene.js
-import Ammo from "../../../includes/ammo.js";
+import type AmmoType from 'ammojs-typed';
+declare const Ammo: typeof AmmoType;
+
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
 

@@ -1,7 +1,4 @@
-//import * as BABYLON from 'babylonjs';
 import { setPhysicImpostor } from "./config.js";
-// depuis public/script/game/scene.js
-import Ammo from "../../../includes/ammo.js";
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
 async function loadPaddle(scene) {
