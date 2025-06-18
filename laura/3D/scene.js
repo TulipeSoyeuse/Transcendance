@@ -1,5 +1,7 @@
 
 import { setPhysicImpostor } from "./config.js";
+import { AmmoJSPlugin } from "@babylonjs/core";
+import * as Ammo from "ammo.js";
 //.import * as BABYLON from 'babylonjs';
 //import Ammo from 'ammo.js';
 

@@ -1,25 +1,29 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const scene_1 = require("./scene");
-const inputController_1 = require("./inputController");
-const handleGame_1 = require("./handleGame");
+
+export {};
+import { createScene } from "./scene";
+import { PlayerInput } from "./inputController";
+import { GameManager } from "./handleGame";
 //import * as BABYLON from 'babylonjs';
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
+
+
 async function initScene() {
+
     // Récupérer le canvas
-    const canvas = document.getElementById("renderCanvas");
+    const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
     // Créer le moteur Babylon
     const engine = new BABYLON.Engine(canvas, true);
-    const scene = await (0, scene_1.createScene)(engine, canvas); // Attendre que la scène soit créée
-    const playerInput = new inputController_1.PlayerInput(scene); // Choper les input du clavier
+    const scene = await createScene(engine, canvas); // Attendre que la scène soit créée
+    const playerInput = new PlayerInput(scene);  // Choper les input du clavier
+
     // Compter les points et remettre le service
     const ball = scene.getMeshByName("pingPongBall");
     const ground = scene.getMeshByName("ground");
-    if (!ball || !ground) {
+    if (!ball || !ground) {
         throw new Error("Le mesh 'pingPongBall' n'a pas été trouvé !");
-    }
-    const gameManager = new handleGame_1.GameManager(scene, ball, ground);
+    }  
+    const gameManager = new GameManager(scene, ball, ground);
     // Boucle de rendu
     engine.runRenderLoop(function () {
         scene.render(); // Appeler la méthode render de la scène
