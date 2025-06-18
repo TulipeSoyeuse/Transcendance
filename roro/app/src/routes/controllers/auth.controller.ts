@@ -15,7 +15,7 @@ interface LoginBody {
 }
 
 //usual query
-const insertuser = 'INSERT INTO user (username, email, password, created_at) VALUES (?, ?, ?, date(?))'
+const insertuser = 'INSERT INTO user (username, email, password, created_at) VALUES (?, ?, ?, date())'
 
 export function register(fastify: FastifyInstance) {
     // add a new entry to the database user, at this point all checks for the credential
@@ -27,7 +27,7 @@ export function register(fastify: FastifyInstance) {
                 console.error(err)
             }
             else {
-                fastify.database.prepare(insertuser).all([username, email, hash, Date()], (err: Error) => console.error(err?.message))
+                fastify.database.prepare(insertuser).all([username, email, hash], (err: Error) => console.error(err?.message))
                 console.log("new user entry:\nusername:%s, email:%s, password:%s", username, email, hash)
             }
         })
