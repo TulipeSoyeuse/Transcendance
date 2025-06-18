@@ -1,8 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const root_controller_1 = require("./controllers/root.controller");
-const api_controller_1 = require("./controllers/api.controller");
-const auth_controller_1 = require("./controllers/auth.controller");
+import { getRoot, getGame, getAccount } from "./controllers/root.controller.js";
+import { check_user } from "./controllers/api.controller.js";
+import { register, login, logout } from "./controllers/auth.controller.js";
 /**
  * A plugin that provide encapsulated routes
  * @param {FastifyInstance} fastify encapsulated fastify instance
@@ -14,21 +12,21 @@ async function routes(fastify, options) {
         return { reply: "pong" };
     });
     // index.html
-    fastify.get('/', (0, root_controller_1.getRoot)(fastify));
+    fastify.get('/', getRoot(fastify));
     // game
-    fastify.get('/game/pong', (0, root_controller_1.getGame)(fastify));
+    fastify.get('/game/pong', getGame(fastify));
     // account.html
-    fastify.get('/account', (0, root_controller_1.getAccount)(fastify));
+    fastify.get('/account', getAccount(fastify));
 }
 async function auth(fastify, options) {
     //authentification routes
-    fastify.post('/register', (0, auth_controller_1.register)(fastify));
-    fastify.post('/login', (0, auth_controller_1.login)(fastify));
-    fastify.get("/logout", (0, auth_controller_1.logout)(fastify));
+    fastify.post('/register', register(fastify));
+    fastify.post('/login', login(fastify));
+    fastify.get("/logout", logout(fastify));
 }
 async function api(fastify, options) {
     // api/user-check
-    fastify.post('/api/check-username', (0, api_controller_1.check_user)(fastify));
+    fastify.post('/api/check-username', check_user(fastify));
 }
 ;
-exports.default = { routes, api, auth };
+export default { routes, api, auth };

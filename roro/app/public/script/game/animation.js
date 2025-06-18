@@ -1,13 +1,8 @@
-"use strict";
 //import * as BABYLON from 'babylonjs';
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.animateLeftPaddle = animateLeftPaddle;
-exports.animateRightPaddle = animateRightPaddle;
-exports.serveBall = serveBall;
 // TODO : Lever legerement la balle quand on tire (mettre un applyimpulse ?)
-function animateLeftPaddle(paddle, onComplete) {
+export function animateLeftPaddle(paddle, onComplete) {
     if (!paddle) {
         console.error("can't find left paddle.");
         if (onComplete)
@@ -36,7 +31,7 @@ function animateLeftPaddle(paddle, onComplete) {
             onComplete();
     };
 }
-function animateRightPaddle(paddle, onComplete) {
+export function animateRightPaddle(paddle, onComplete) {
     if (!paddle) {
         console.error("can't find right paddle.");
         if (onComplete)
@@ -66,7 +61,7 @@ function animateRightPaddle(paddle, onComplete) {
     };
 }
 //TODO : faire comme les autres animations, ne pas pouvoir spammer le service
-function serveBall(pingPongBall, scene, onComplete) {
+export function serveBall(pingPongBall, scene, onComplete) {
     const velocityThreshold = 0.2;
     if (pingPongBall.physicsImpostor) {
         pingPongBall.physicsImpostor.setLinearVelocity(BABYLON.Vector3.Zero());

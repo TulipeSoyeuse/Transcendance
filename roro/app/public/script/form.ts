@@ -17,6 +17,11 @@ function closeLForm() {
     loginform?.classList.add('hidden');
 }
 
+document.getElementById('openLogin')?.addEventListener('click', openLogin);
+document.getElementById('closeLForm')?.addEventListener('click', closeLForm);
+document.getElementById('openRegister')?.addEventListener('click', openRegister);
+document.getElementById('closeRForm')?.addEventListener('click', closeRForm);
+
 registerform?.addEventListener('submit', function (event) {
     event.preventDefault();
     const form = registerform?.querySelector('form') as HTMLFormElement;

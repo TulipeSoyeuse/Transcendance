@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
-import { getRoot, getGame, getAccount } from "./controllers/root.controller";
-import { check_user } from "./controllers/api.controller";
-import { register, login, logout } from "./controllers/auth.controller";
+import { getRoot, getGame, getAccount } from "./controllers/root.controller.js";
+import { check_user } from "./controllers/api.controller.js";
+import { register, login, logout } from "./controllers/auth.controller.js";
 
 /**
  * A plugin that provide encapsulated routes

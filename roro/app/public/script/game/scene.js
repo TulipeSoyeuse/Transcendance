@@ -1,13 +1,9 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createScene = createScene;
 //import * as BABYLON from 'babylonjs';
-const config_js_1 = require("./config.js");
+import { setPhysicImpostor } from "./config.js";
 // depuis public/script/game/scene.js
-const ammo_js_1 = __importDefault(require("../../../includes/ammo.js"));
+import Ammo from "../../../includes/ammo.js";
+/// <reference types="babylonjs" />
+/// <reference types="babylonjs-gui" />
 async function loadPaddle(scene) {
     const paddleConfig = [
         {
@@ -73,7 +69,7 @@ async function loadPaddle(scene) {
     }
 }
 // Fonction qui crée la scène
-async function createScene(engine, canvas) {
+export async function createScene(engine, canvas) {
     let scene = new BABYLON.Scene(engine);
     if (!scene)
         console.log("Scene not load");
@@ -81,8 +77,8 @@ async function createScene(engine, canvas) {
     if (!camera)
         console.log("Camera not load");
     camera.attachControl(canvas, true);
-    await ammo_js_1.default;
-    const ammoPlugin = new BABYLON.AmmoJSPlugin(true, ammo_js_1.default);
+    await Ammo;
+    const ammoPlugin = new BABYLON.AmmoJSPlugin(true, Ammo);
     scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), ammoPlugin);
     var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
     var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 30, height: 20 }, scene);
@@ -101,7 +97,7 @@ async function createScene(engine, canvas) {
         height: 0.50,
         depth: 20
     }, scene);
-    (0, config_js_1.setPhysicImpostor)(pingPongBall, ground, groundMaterial, scene);
+    setPhysicImpostor(pingPongBall, ground, groundMaterial, scene);
     await loadPaddle(scene);
     return scene;
 }

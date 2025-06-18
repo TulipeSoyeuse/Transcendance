@@ -2,7 +2,6 @@
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
 
-export {};
 // TODO : Lever legerement la balle quand on tire (mettre un applyimpulse ?)
 export function animateLeftPaddle(paddle: BABYLON.Mesh, onComplete: any) {
     if (!paddle) {
@@ -22,7 +21,7 @@ export function animateLeftPaddle(paddle: BABYLON.Mesh, onComplete: any) {
         30,
         BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
         BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-    );                                         
+    );
 
     animation.setKeys([
         { frame: 0, value: startPos },
@@ -45,7 +44,7 @@ export function animateLeftPaddle(paddle: BABYLON.Mesh, onComplete: any) {
 }
 
 
-export function animateRightPaddle(paddle: BABYLON.Mesh , onComplete: any) {
+export function animateRightPaddle(paddle: BABYLON.Mesh, onComplete: any) {
     if (!paddle) {
         console.error("can't find right paddle.");
         if (onComplete) onComplete();
@@ -86,10 +85,10 @@ export function animateRightPaddle(paddle: BABYLON.Mesh , onComplete: any) {
 }
 
 //TODO : faire comme les autres animations, ne pas pouvoir spammer le service
-export function serveBall(pingPongBall: BABYLON.Mesh , scene: BABYLON.Scene , onComplete: any) {
+export function serveBall(pingPongBall: BABYLON.Mesh, scene: BABYLON.Scene, onComplete: any) {
 
     const velocityThreshold = 0.2;
-    
+
     if (pingPongBall.physicsImpostor) {
         pingPongBall.physicsImpostor.setLinearVelocity(BABYLON.Vector3.Zero());
         pingPongBall.physicsImpostor.setAngularVelocity(BABYLON.Vector3.Zero());
@@ -109,7 +108,7 @@ export function serveBall(pingPongBall: BABYLON.Mesh , scene: BABYLON.Scene , on
     if (onComplete) {
         onComplete();
     }
-    
+
 }
 
 

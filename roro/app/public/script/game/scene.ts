@@ -5,7 +5,6 @@ import Ammo from "../../../includes/ammo.js";
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
 
-export {};
 async function loadPaddle(scene: BABYLON.Scene) {
     const paddleConfig = [
         {
@@ -62,7 +61,7 @@ async function loadPaddle(scene: BABYLON.Scene) {
                 if (hitbox.rotationQuaternion) {
                     container.rotationQuaternion?.copyFrom(hitbox.rotationQuaternion);
                 }
-            });            
+            });
 
         } catch (error) {
             console.error(`Erreur lors du chargement de ${config.name}`, error);
@@ -90,7 +89,7 @@ async function loadPaddle(scene: BABYLON.Scene) {
 
 
 // Fonction qui crée la scène
-export  async function createScene(engine: BABYLON.Engine , canvas: HTMLCanvasElement)  {
+export async function createScene(engine: BABYLON.Engine, canvas: HTMLCanvasElement) {
     let scene = new BABYLON.Scene(engine);
     if (!scene)
         console.log("Scene not load");

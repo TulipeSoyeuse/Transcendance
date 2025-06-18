@@ -1,4 +1,3 @@
-"use strict";
 /** @type {import('tailwindcss').Config} */
 module.exports = {
     content: ['./public/**/*.{html, js}'],
@@ -7,3 +6,4 @@ module.exports = {
     },
     plugins: [],
 };
+export {};

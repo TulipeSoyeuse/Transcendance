@@ -1,21 +1,13 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.register = register;
-exports.login = login;
-exports.logout = logout;
-const bcrypt_1 = __importDefault(require("bcrypt"));
+import bcrypt from 'bcrypt';
 const saltRounds = 10;
 //usual query
 const insertuser = 'INSERT INTO user (username, email, password, created_at) VALUES (?, ?, ?, date(?))';
-function register(fastify) {
+export function register(fastify) {
     // add a new entry to the database user, at this point all checks for the credential
     // used should have been done
     return async function (request, reply) {
         const { username, email, password } = request.body;
-        bcrypt_1.default.hash(password, saltRounds, function (err, hash) {
+        bcrypt.hash(password, saltRounds, function (err, hash) {
             if (err) {
                 console.error(err);
             }
@@ -27,7 +19,7 @@ function register(fastify) {
         return reply.redirect("/");
     };
 }
-function login(fastify) {
+export function login(fastify) {
     return async function (request, reply) {
         const { username, password } = request.body;
         console.log("request login for: %s, with password %s", username, password);
@@ -38,7 +30,7 @@ function login(fastify) {
         }
         else {
             const user = rows[0];
-            if (await bcrypt_1.default.compare(password, user.password)) {
+            if (await bcrypt.compare(password, user.password)) {
                 console.log("user %s logged", username);
                 request.session.authenticated = true;
                 request.session.userId = user.id;
@@ -50,7 +42,7 @@ function login(fastify) {
         }
     };
 }
-function logout(FastifyInstance) {
+export function logout(FastifyInstance) {
     return async function (request, reply) {
         request.session.authenticated = false;
         request.session.destroy(err => {

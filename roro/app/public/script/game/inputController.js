@@ -1,9 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PlayerInput = void 0;
 //import * as BABYLON from 'babylonjs';
-const animation_js_1 = require("./animation.js");
-class PlayerInput {
+import { animateLeftPaddle, animateRightPaddle, serveBall } from "./animation.js";
+// import * as BABYLON from 'babylonjs';
+const Ammo = require("ammo.js");
+export class PlayerInput {
     constructor(scene) {
         scene.actionManager = new BABYLON.ActionManager(scene);
         this.inputMap = {};
@@ -46,13 +45,13 @@ class PlayerInput {
         }
         if (this.inputMap["p"] && leftPaddle && !this.leftAnimating) {
             this.leftAnimating = true;
-            (0, animation_js_1.animateLeftPaddle)(leftPaddle, () => {
+            animateLeftPaddle(leftPaddle, () => {
                 this.leftAnimating = false;
             });
         }
         if (this.inputMap["d"] && rightPaddle && !this.rightAnimating) {
             this.rightAnimating = true;
-            (0, animation_js_1.animateRightPaddle)(rightPaddle, () => {
+            animateRightPaddle(rightPaddle, () => {
                 this.rightAnimating = false;
             });
         }
@@ -60,11 +59,10 @@ class PlayerInput {
             const ball = scene.getMeshByName("pingPongBall");
             if (ball) {
                 this.ballAnimating = true;
-                (0, animation_js_1.serveBall)(ball, scene, () => {
+                serveBall(ball, scene, () => {
                     this.ballAnimating = false;
                 });
             }
         }
     }
 }
-exports.PlayerInput = PlayerInput;

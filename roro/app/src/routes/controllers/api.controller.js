@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.check_user = check_user;
-function check_user(fastify) {
+export function check_user(fastify) {
     // return the async function needed by the get handler
     return async function (request, reply) {
         const username = request.body.username;

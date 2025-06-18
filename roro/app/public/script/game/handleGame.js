@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.GameManager = void 0;
-class GameManager {
+export class GameManager {
     constructor(scene, pingPongBall, floor) {
         this.player1Score = 0;
         this.player2Score = 0;
@@ -127,4 +124,3 @@ class GameManager {
         this.ball.physicsImpostor.setAngularVelocity(BABYLON.Vector3.Zero());
     }
 }
-exports.GameManager = GameManager;

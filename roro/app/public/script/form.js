@@ -1,4 +1,3 @@
-"use strict";
 const loginform = document.getElementById('LoginForm');
 const registerform = document.getElementById('RegisterForm');
 function openLogin() {
@@ -13,6 +12,10 @@ function closeRForm() {
 function closeLForm() {
     loginform?.classList.add('hidden');
 }
+document.getElementById('openLogin')?.addEventListener('click', openLogin);
+document.getElementById('closeLForm')?.addEventListener('click', closeLForm);
+document.getElementById('openRegister')?.addEventListener('click', openRegister);
+document.getElementById('closeRForm')?.addEventListener('click', closeRForm);
 registerform?.addEventListener('submit', function (event) {
     event.preventDefault();
     const form = registerform?.querySelector('form');
@@ -38,3 +41,4 @@ registerform?.addEventListener('submit', function (event) {
     });
     form.submit();
 });
+export {};

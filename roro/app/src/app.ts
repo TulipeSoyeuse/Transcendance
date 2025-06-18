@@ -1,11 +1,12 @@
 import * as path from 'path'
 import fastifyStatic from '@fastify/static';
 import fastify from 'fastify'
-import root from './routes/root'
-import dbPlugin from './plugins/dbplugin';
+import root from './routes/root.js'
+import dbPlugin from './plugins/dbplugin.js';
 import formbody from '@fastify/formbody';
 import fastifySession from '@fastify/session';
 import fastifyCookie from '@fastify/cookie';
+const __dirname = import.meta.dirname;
 
 const server = fastify()
 

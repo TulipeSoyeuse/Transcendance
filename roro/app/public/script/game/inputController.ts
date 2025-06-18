@@ -1,11 +1,11 @@
 //import * as BABYLON from 'babylonjs';
 import { animateLeftPaddle, animateRightPaddle, serveBall } from "./animation.js";
 // import * as BABYLON from 'babylonjs';
-// import Ammo from 'ammo.js';
+const Ammo = require("ammo.js");
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
 
-export {};
+export { };
 export class PlayerInput {
     inputMap: { [key: string]: boolean };
     leftAnimating: boolean;

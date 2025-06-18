@@ -34,6 +34,7 @@ export class Database extends sqlite3.Database {
 //TODO: extend class database to a custom class SQLiteStore, bind it with fastity/session (save session and cookie in db instead of memory)
 export default fp(async function (fastify: FastifyInstance, options: FastifyPluginOptions) {
     const db = new Database('src/db/db.sqlite3');
+    const __dirname = import.meta.dirname;
     const schema = fs.readFileSync(path.join(__dirname, '../db/schema.sql'), 'utf8');
 
     db.exec(schema, (err) => {

@@ -1,11 +1,8 @@
-"use strict";
 //import * as BABYLON from 'babylonjs';
 // import Ammo from 'ammo.js';
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.setPhysicImpostor = void 0;
-var setPhysicImpostor = function (pingPongBall, ground, groundMaterial, scene) {
+export var setPhysicImpostor = function (pingPongBall, ground, groundMaterial, scene) {
     // Importation du moteur physique
     ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
     groundMaterial.alpha = 0.5;
@@ -13,4 +10,3 @@ var setPhysicImpostor = function (pingPongBall, ground, groundMaterial, scene) {
     ground.material = groundMaterial;
     pingPongBall.physicsImpostor = new BABYLON.PhysicsImpostor(pingPongBall, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 0.40, restitution: 0.9 }, scene);
 };
-exports.setPhysicImpostor = setPhysicImpostor;
