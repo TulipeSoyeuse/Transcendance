@@ -29,9 +29,7 @@ registerform?.addEventListener('submit', function (event) {
     const username = formData.get('username')?.toString().trim() || '';
     const email = formData.get('email')?.toString().trim() || '';
     const password = formData.get('password')?.toString() || '';
-    console.log("password: %s", password)
-    console.log("username: %s", username)
-    console.log("email: %s", email)
+
     // Basic validation
     if (password.length < 6) {
         alert('Password must be at least 6 characters');

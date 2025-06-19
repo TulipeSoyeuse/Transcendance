@@ -39,9 +39,9 @@ export default fp(async function (fastify: FastifyInstance, options: FastifyPlug
 
     db.exec(schema, (err) => {
         if (err) {
-            console.error('Error initializing DB:', err.message);
+            fastify.log.error('Error initializing DB:', err.message);
         } else {
-            console.log('Database initialized successfully.');
+            fastify.log.info('Database initialized successfully.');
         }
     });
     // fastify.database == db

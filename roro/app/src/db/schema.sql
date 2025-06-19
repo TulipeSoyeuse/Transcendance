@@ -31,13 +31,14 @@ CREATE TABLE IF NOT EXISTS match (
     date DATETIME NOT NULL,
     FOREIGN KEY (player_1) REFERENCES user (id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     FOREIGN KEY (player_2) REFERENCES user (id) ON DELETE NO ACTION ON UPDATE NO ACTION
+    FOREIGN KEY (winner) REFERENCES user (id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- ------------------------------
 -- Table: session
 -- ------------------------------
 CREATE TABLE IF NOT EXISTS session (
-    sid INTEGER PRIMARY KEY UNIQUE NOT NULL,
-    session TEXT,
-    created_at DATETIME
+    sid TEXT PRIMARY KEY UNIQUE NOT NULL,
+    session TEXT NOT NULL,
+    expires DATETIME NOT NULL
 );

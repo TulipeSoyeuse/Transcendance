@@ -13,7 +13,7 @@ export function register(fastify) {
             }
             else {
                 fastify.database.prepare(insertuser).all([username, email, hash], (err) => console.error(err?.message));
-                console.log("new user entry:\nusername:%s, email:%s, password:%s", username, email, hash);
+                fastify.log.info("new user entry:\nusername:%s, email:%s, password:%s", username, email, hash);
             }
         });
         return reply.redirect("/");
@@ -22,21 +22,21 @@ export function register(fastify) {
 export function login(fastify) {
     return async function (request, reply) {
         const { username, password } = request.body;
-        console.log("request login for: %s, with password %s", username, password);
+        fastify.log.info("request login for: %s, with password %s", username, password);
         const rows = await fastify.database.fetch_all('SELECT id, password FROM user WHERE username = ?', [username]);
         if (!rows || rows.length === 0) {
-            console.error('query returned empty');
+            fastify.log.error('query returned empty');
             return reply.redirect('/');
         }
         else {
             const user = rows[0];
             if (await bcrypt.compare(password, user.password)) {
-                console.log("user %s logged", username);
+                fastify.log.info("user %s logged", username);
                 request.session.authenticated = true;
                 request.session.userId = user.id;
             }
             else {
-                console.log("wrong password");
+                fastify.log.info("wrong password");
             }
             return reply.redirect("/");
         }

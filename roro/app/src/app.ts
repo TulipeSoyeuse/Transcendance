@@ -6,25 +6,33 @@ import dbPlugin from './plugins/dbplugin.js';
 import formbody from '@fastify/formbody';
 import fastifySession from '@fastify/session';
 import fastifyCookie from '@fastify/cookie';
+import Store from './db/store.js';
 const __dirname = import.meta.dirname;
 
-const server = fastify()
+const server = fastify(
+  {
+    logger: {
+      level: 'info'
+    }
+  }
+)
 
 // PLUGINS (register plugins first or problems)
+let db = server.register(dbPlugin)
 server.register(formbody)
 server.register(fastifyCookie)
+await db;
 server.register(fastifySession, {
   cookieName: 'sessionId',
   //TODO: secret should be in .ENV file
   secret: '2c8c3c1549e14bfc7f124ed4a8dbbb94',
-  cookie: { maxAge: 1800000, secure: "auto" }
+  cookie: { maxAge: 1800000, secure: "auto" },
+  store: new Store.SessionStore(server.database, server.log)
 })
 server.register(fastifyStatic, {
   root: path.join(__dirname, '..', 'public'),
   prefix: '/',
 });
-// add fastify.database with customs helpers function everywhere within fastify instance (refer to custom.d.ts)
-server.register(dbPlugin)
 
 // --------------------------
 
@@ -42,5 +50,4 @@ server.listen({ port: 8080 }, (err, address) => {
     console.error(err)
     process.exit(1)
   }
-  console.log(`Server listening at ${address}`)
 })

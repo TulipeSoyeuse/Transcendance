@@ -1,5 +1,7 @@
 import 'fastify'
 import { Database } from '../src/plugins/dbplugin';
+import { sqlite3 } from 'sqlite3';
+import type { Logger } from 'pino'
 
 declare module 'fastify' {
     interface FastifyInstance {
@@ -10,9 +12,4 @@ declare module 'fastify' {
         authenticated?: boolean;
         userId?: number;
     }
-}
-
-declare module "ammo.js" {
-    const Ammo: any;
-    export default Ammo;
 }

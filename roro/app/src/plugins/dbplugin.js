@@ -33,10 +33,10 @@ export default fp(async function (fastify, options) {
     const schema = fs.readFileSync(path.join(__dirname, '../db/schema.sql'), 'utf8');
     db.exec(schema, (err) => {
         if (err) {
-            console.error('Error initializing DB:', err.message);
+            fastify.log.error('Error initializing DB:', err.message);
         }
         else {
-            console.log('Database initialized successfully.');
+            fastify.log.info('Database initialized successfully.');
         }
     });
     // fastify.database == db
