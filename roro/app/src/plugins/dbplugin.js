@@ -1,7 +1,7 @@
-import fp from 'fastify-plugin';
-import sqlite3 from 'sqlite3';
-import path from 'path';
-import fs from 'fs';
+import fp from "fastify-plugin";
+import sqlite3 from "sqlite3";
+import path from "path";
+import fs from "fs";
 export class Database extends sqlite3.Database {
     async fetch_all(query, params = []) {
         return new Promise((resolve, reject) => {
@@ -28,17 +28,17 @@ export class Database extends sqlite3.Database {
 }
 //TODO: extend class database to a custom class SQLiteStore, bind it with fastity/session (save session and cookie in db instead of memory)
 export default fp(async function (fastify, options) {
-    const db = new Database('src/db/db.sqlite3');
+    const db = new Database("src/db/db.sqlite3");
     const __dirname = import.meta.dirname;
-    const schema = fs.readFileSync(path.join(__dirname, '../db/schema.sql'), 'utf8');
+    const schema = fs.readFileSync(path.join(__dirname, "../db/schema.sql"), "utf8");
     db.exec(schema, (err) => {
         if (err) {
-            fastify.log.error('Error initializing DB:', err.message);
+            fastify.log.error("Error initializing DB:", err.message);
         }
         else {
-            fastify.log.info('Database initialized successfully.');
+            fastify.log.info("Database initialized successfully.");
         }
     });
     // fastify.database == db
-    fastify.decorate('database', db);
+    fastify.decorate("database", db);
 });
