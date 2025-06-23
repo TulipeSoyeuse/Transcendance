@@ -1,0 +1,3 @@
+[submodule "roro/dep/fastify-socket.io"]
+	path = roro/dep/fastify-socket.io
+	url = git@github.com:ducktors/fastify-socket.io.git

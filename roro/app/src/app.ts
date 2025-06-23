@@ -7,6 +7,9 @@ import formbody from "@fastify/formbody";
 import fastifySession from "@fastify/session";
 import fastifyCookie from "@fastify/cookie";
 import Store from "./db/store.js";
+import fastifyIO from "fastify-socket.io";
+import fastifySocketIO from "fastify-socket.io";
+
 const __dirname = import.meta.dirname;
 
 const server = fastify({
@@ -14,11 +17,11 @@ const server = fastify({
         level: "error",
     },
 });
-
 // PLUGINS (register plugins first or problems)
 let db = server.register(dbPlugin);
 server.register(formbody);
 server.register(fastifyCookie);
+server.register(fastifySocketIO.default, {});
 await db; // db needed for session
 server.register(fastifySession, {
     cookieName: "sessionId",
