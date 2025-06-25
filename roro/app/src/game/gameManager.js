@@ -10,28 +10,46 @@ var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (
     return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
 };
 var _a, _GameManager_instance;
+import cookie from "cookie";
 //Singleton GameManager
 export class GameManager {
     constructor() {
         // tableau de room 
         this.rooms = [];
+        this.fastify = null;
+        this.userSocketMap = new Map();
         console.log("Game Manager crée");
     }
-    static getInstance() {
+    static getInstance(server) {
         if (!__classPrivateFieldGet(this, _a, "f", _GameManager_instance)) {
             __classPrivateFieldSet(this, _a, new _a(), "f", _GameManager_instance);
+            __classPrivateFieldGet(this, _a, "f", _GameManager_instance).configureSocketIO(server);
         }
         return __classPrivateFieldGet(this, _a, "f", _GameManager_instance);
     }
     ;
+    configureSocketIO(server) {
+        server.ready().then(() => {
+            server.io.on("connection", (socket) => {
+                console.log("je passe par configuresocketIO");
+                console.log("Utilisateur connecté : ", socket.id);
+                const cookies = cookie.parse(socket.handshake.headers.cookie);
+                const sessionId = cookies.sessionId;
+                console.log("websocket sessionID: ", sessionId);
+                if (sessionId) {
+                    const sessionKey = sessionId.split('.')[0];
+                    console.log("Session ID = ", sessionKey);
+                    // TODO : ajouter une clef pour retrouver facilement la session 
+                    this.userSocketMap.set(socket.id, sessionKey);
+                }
+                else {
+                    console.log("Pas de session id. Fastify/session pas instancié");
+                }
+            });
+        });
+    }
     //Implementation de GameManager
-    addRoom(mode) {
-        if (mode === "local") {
-            //appeler une room en mode local
-        }
-        else {
-            //appeler un room en mode remote
-        }
+    addRoom(mode, session) {
     }
 }
 _a = GameManager;

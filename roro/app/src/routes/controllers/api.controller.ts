@@ -21,21 +21,15 @@ export function check_user(fastify: FastifyInstance) {
 
 export function handle_game(fastify: FastifyInstance) {
     return async function (request: FastifyRequest, reply: FastifyReply) {
-      const gm = GameManager.getInstance();  
-      console.log("session : ", request.session);
-      console.log("REQUÊTE REÇUE !");
-      console.log("Body :", request.body);
-  
+        console.log("kaka");
+      const gm = GameManager.getInstance(fastify);
+      console.log("userid and user = ", request.session.sessionId);
       const mode = (request.body as { mode: string }).mode;
-      console.log("Mode :", mode);
-  
       if (mode === "local" || mode === "remote") {
-        console.log("Appel de Game Manager");
+
       }  else {
         console.error("Erreur : mode invalide", mode);
       }
-  
-      //reply.send({ status: "ok" });
     };
   }
   

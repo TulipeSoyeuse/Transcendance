@@ -1,7 +1,9 @@
+import { Player } from "../../includes/custom.js";
+
 export class Room {
     id: string = "null";
     // TODO : ne pas mettre plus de 2 player dans mon tableau 
-    players: string[] = [];
+    players: Player[] = [];
     public constructor (mode: string, username:string) {
         console.log("this is a new room :) ");
         

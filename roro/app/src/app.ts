@@ -48,53 +48,7 @@ server.register(root.api);
 //all request linked to authentification (and sessions managment ?) here
 server.register(root.auth);
 
-server.ready().then(() => {
-    // server.io.on("connection", (socket) => {
-    //     console.log("Utilisateur connecté : ", socket.id);
-    // })
-
-    server.io.on("connection", (socket) => {
-      const cookieHeader = socket.handshake.headers.cookie;
-      if (!cookieHeader) {
-        console.log("Pas de cookie dans la connexion socket");
-        return;
-      }
-  
-      // 1. Parse les cookies
-      const cookies = cookie.parse(cookieHeader);
-      const sessionId = cookies.sessionId;
-      if (!sessionId) {
-        console.log("Pas de sessionId dans les cookies");
-        return;
-      }
-  
-      // 2. Récupère la session à partir du store fastify-session
-      // Utilise "!" pour dire à TypeScript que sessionId n'est pas undefined ici
-      sessionStore.get(sessionId!, (err, session) => {
-        if (err) {
-          console.error("Erreur récupération session:", err);
-          return;
-        }
-        if (!session) {
-          console.log("Session introuvable: sessionId = ", sessionId);
-          return;
-        }
-  
-        // 3. Modifie la session
-        // TypeScript ne connaît pas socketId dans session, mais ça marche au runtime
-        (session as any).socketId = socket.id;
-  
-        // 4. Sauvegarde la session modifiée
-        sessionStore.set(sessionId!, session, (err) => {
-          if (err) {
-            console.error("Erreur sauvegarde session:", err);
-            return;
-          }
-          console.log(`Socket.id ${socket.id} stocké dans la session`);
-        });
-      });
-    });
-  });
+const gm = GameManager.getInstance(server); 
 
 
 server.listen({ port: 8080 }, (err, address) => {
