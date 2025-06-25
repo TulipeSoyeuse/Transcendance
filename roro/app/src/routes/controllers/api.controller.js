@@ -1,3 +1,4 @@
+import { GameManager } from "../../game/gameManager.js";
 export function check_user(fastify) {
     // return the async function needed by the get handler
     return async function (request, reply) {
@@ -9,5 +10,22 @@ export function check_user(fastify) {
             }
             reply.send({ exists: 1 });
         });
+    };
+}
+export function handle_game(fastify) {
+    return async function (request, reply) {
+        const gm = GameManager.getInstance();
+        console.log("session : ", request.session);
+        console.log("REQUÊTE REÇUE !");
+        console.log("Body :", request.body);
+        const mode = request.body.mode;
+        console.log("Mode :", mode);
+        if (mode === "local" || mode === "remote") {
+            console.log("Appel de Game Manager");
+        }
+        else {
+            console.error("Erreur : mode invalide", mode);
+        }
+        //reply.send({ status: "ok" });
     };
 }

@@ -74,7 +74,7 @@ export async function createScene(engine, canvas) {
     if (!camera)
         console.log("Camera not load");
     camera.attachControl(canvas, true);
-    await Ammo;
+    await Ammo();
     const ammoPlugin = new BABYLON.AmmoJSPlugin(true, Ammo);
     scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), ammoPlugin);
     var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);

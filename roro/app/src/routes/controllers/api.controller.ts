@@ -1,4 +1,7 @@
+import fastifySession from "@fastify/session";
+import { notStrictEqual } from "assert";
 import { FastifyReply, FastifyRequest, FastifyInstance } from "fastify";
+import { GameManager } from "../../game/gameManager.js";
 
 export function check_user(fastify: FastifyInstance) {
     // return the async function needed by the get handler
@@ -15,3 +18,24 @@ export function check_user(fastify: FastifyInstance) {
     }
 
 }
+
+export function handle_game(fastify: FastifyInstance) {
+    return async function (request: FastifyRequest, reply: FastifyReply) {
+      const gm = GameManager.getInstance();  
+      console.log("session : ", request.session);
+      console.log("REQUÊTE REÇUE !");
+      console.log("Body :", request.body);
+  
+      const mode = (request.body as { mode: string }).mode;
+      console.log("Mode :", mode);
+  
+      if (mode === "local" || mode === "remote") {
+        console.log("Appel de Game Manager");
+      }  else {
+        console.error("Erreur : mode invalide", mode);
+      }
+  
+      //reply.send({ status: "ok" });
+    };
+  }
+  

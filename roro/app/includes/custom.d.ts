@@ -11,5 +11,6 @@ declare module "fastify" {
     interface Session {
         authenticated?: boolean;
         userId?: number;
+        socketId?: string;
     }
 }

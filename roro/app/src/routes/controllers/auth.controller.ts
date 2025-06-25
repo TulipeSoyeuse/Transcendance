@@ -2,11 +2,11 @@ import { FastifyReply, FastifyRequest, FastifyInstance } from "fastify";
 import bcrypt from 'bcrypt';
 const saltRounds = 10;
 
-
+// describe data from body request
 interface RegisterBody {
-    username: string;
-    email: string;
-    password: string;
+    username: string; //username choisi par l'utilisateur
+    email: string; //email
+    password: string; //mdp
 }
 
 interface LoginBody {
@@ -39,15 +39,18 @@ export function login(fastify: FastifyInstance) {
     return async function (request: FastifyRequest<{ Body: LoginBody }>, reply: FastifyReply) {
         const { username, password } = request.body;
         fastify.log.info("request login for: %s, with password %s", username, password);
+        // fetch all = execute la requete SQL et retourne les données sous forme de tableau. Si aucun utilisateur n'est trouvé le tableau est vide
         const rows = await fastify.database.fetch_all('SELECT id, password FROM user WHERE username = ?', [username])
         if (!rows || rows.length === 0) {
             fastify.log.error('query returned empty');
             return reply.redirect('/');
         }
+        // comparaison du mot de passe fourni et celui stocké (hashé) dans la base données
         else {
             const user = rows[0]
             if (await bcrypt.compare(password, user.password)) {
                 fastify.log.info("user %s logged", username);
+                // stockage des infos dans la session rataché a l'instance fastify 
                 request.session.authenticated = true;
                 request.session.userId = user.id;
             }

@@ -111,7 +111,7 @@ export async function createScene(engine: BABYLON.Engine, canvas: HTMLCanvasElem
 
     camera.attachControl(canvas, true);
 
-    await Ammo;
+    await Ammo();
     const ammoPlugin = new BABYLON.AmmoJSPlugin(true, Ammo);
     scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), ammoPlugin);
 
