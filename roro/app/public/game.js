@@ -3,7 +3,6 @@ const remoteButton = document.getElementById('remoteButton');
 const gameModeSelection = document.getElementById('gameModeSelection');
 const renderCanvas = document.getElementById('renderCanvas');
 export const socket = io('localhost:8080');
-console.log("coucou je rentre ici");
 socket.on('connect', () => {
     console.log('WebSocket connected');
 });

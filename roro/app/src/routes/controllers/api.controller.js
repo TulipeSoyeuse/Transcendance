@@ -14,11 +14,10 @@ export function check_user(fastify) {
 }
 export function handle_game(fastify) {
     return async function (request, reply) {
-        console.log("kaka");
         const gm = GameManager.getInstance(fastify);
-        console.log("userid and user = ", request.session.sessionId);
         const mode = request.body.mode;
         if (mode === "local" || mode === "remote") {
+            gm.addRoom(mode, request.session);
         }
         else {
             console.error("Erreur : mode invalide", mode);

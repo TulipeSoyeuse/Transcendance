@@ -8,8 +8,6 @@ const renderCanvas = document.getElementById('renderCanvas') as HTMLCanvasElemen
 
 export const socket = io('localhost:8080');
 
-console.log("coucou je rentre ici");
-
 socket.on('connect', () => {
   console.log('WebSocket connected');
 });

@@ -1,5 +1,6 @@
 //import * as BABYLON from 'babylonjs';
 import { animateLeftPaddle, animateRightPaddle, serveBall } from "./animation.js";
+import { socket } from "../../game.js";
 // import * as BABYLON from 'babylonjs';
 
 /// <reference types="babylonjs" />
@@ -48,23 +49,57 @@ export class PlayerInput {
         // Initialiser la position de départ une seule fois
         if (leftPaddle && this.leftStartZ === null) {
             this.leftStartZ = leftPaddle.position.z;
+            
         }
         if (rightPaddle && this.rightStartZ === null) {
             this.rightStartZ = rightPaddle.position.z;
         }
 
         if (this.inputMap["o"] && leftPaddle) {
+            console.log("j'appui mdr");
             leftPaddle.position.z += 0.1;
+            socket.emit("keyPressed", {
+                key: "o",
+                position: {
+                    x: leftPaddle.position.x,
+                    y: leftPaddle.position.y,
+                    z: leftPaddle.position.z
+                }
+            });
         }
         if (this.inputMap["l"] && leftPaddle) {
             leftPaddle.position.z -= 0.1;
+            socket.emit("keyPressed", {
+                key: "o",
+                position: {
+                    x: leftPaddle.position.x,
+                    y: leftPaddle.position.y,
+                    z: leftPaddle.position.z
+                }
+            });
         }
 
         if (this.inputMap["q"] && rightPaddle) {
             rightPaddle.position.z += 0.1;
+            socket.emit("keyPressed", {
+                key: "o",
+                position: {
+                    x: leftPaddle.position.x,
+                    y: leftPaddle.position.y,
+                    z: leftPaddle.position.z
+                }
+            });
         }
         if (this.inputMap["w"] && rightPaddle) {
             rightPaddle.position.z -= 0.1;
+            socket.emit("keyPressed", {
+                key: "o",
+                position: {
+                    x: leftPaddle.position.x,
+                    y: leftPaddle.position.y,
+                    z: leftPaddle.position.z
+                }
+            });
         }
 
         if (this.inputMap["p"] && leftPaddle && !this.leftAnimating) {

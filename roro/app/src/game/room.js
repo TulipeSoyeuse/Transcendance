@@ -1,9 +1,30 @@
+import { GameScene } from "./scene.js";
 export class Room {
-    constructor(mode, username) {
+    constructor(mode, player1) {
         this.id = "null";
-        // TODO : ne pas mettre plus de 2 player dans mon tableau 
         this.players = [];
-        console.log("this is a new room :) ");
+        this.players.push(player1);
+        this.gameScene = new GameScene();
+        this.keyPressedListener();
+    }
+    //envoyer les infos aux players 
+    emitToPlayers(player1, player2) {
+        if (!player1.socket) {
+            console.error("Le joueur n'a pas de socketId");
+            return;
+        }
+        const sceneState = this.gameScene.getSceneState(); // récupère l’état
+        // Émission vers le joueur avec son socketId
+        player1.socket.emit("sceneUpdate", sceneState);
+    }
+    //ecoute les touches pressées
+    // TODO : la connexion fonctionne, mais si elle est perdue on est obligé de revenir sur /game.ts pour en recrrer une  nouvelle
+    keyPressedListener() {
+        if (!this.players[0].socket.connected)
+            console.log("la socket est die");
+        this.players[0].socket.on("keyPressed", (data) => {
+            console.log(`Input reçu : ${data.key}, position:`, data.position);
+        });
     }
 }
 ;
@@ -23,5 +44,4 @@ pour envoyer le jeu, j'enregistre le socket id de chacun des joeurs et j'emit a 
 
 
 
-*/
-// TODO : un websocket par room ????
+*/ 

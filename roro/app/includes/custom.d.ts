@@ -16,8 +16,8 @@ declare module "fastify" {
     }
 }
 
-
-declare interface Player {
-    session: SessionStore;
-    socketId: string;
+interface Player {
+    session: FastifySessionObject | undefined;
+    socket: any;
+    username: string | undefined;
 }
