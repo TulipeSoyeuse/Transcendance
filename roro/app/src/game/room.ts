@@ -6,45 +6,45 @@ export class Room {
     players: Player[] = [];
     gameScene : GameScene;
 
-    //TODO : Handle multiple socket and single socket for remote
-
     public constructor (mode: string, player1: Player) {
         this.players.push(player1);
         this.gameScene = new GameScene();
         this.keyPressedListener();
+        this.emitToPlayers(player1);
 
     }
 
-    //envoyer les infos aux players 
-    // private emitToPlayers(player1: Player, player2: Player) {
-    //     if (!player1.socket) {
-    //         console.error("Le joueur n'a pas de socketId");
-    //         return;
-    //     }
-
-    //     const sceneState = this.gameScene.getSceneState(); // récupère l’état
-
-    //     // Émission vers le joueur avec son socketId
-    //     player1.socket.emit("sceneUpdate", sceneState);
-    // }
+    private emitToPlayers(player1: Player) {
+        if (!player1.socket) {
+            console.error("Le joueur n'a pas de socketId");
+            return;
+        }
+        setInterval(() => {
+        const sceneState = this.gameScene.getSceneState();
+        player1.socket.emit("sceneUpdate", sceneState);
+        }, 1000 / 30);
+    }
 
 
     //ecoute les touches pressées
     // TODO : la connexion fonctionne, mais si elle est perdue on est obligé de revenir sur /game.ts pour en recrrer une  nouvelle
     private keyPressedListener() {
-        if(!this.players[0].socket.connected)
-            console.log("la socket est die");
+        if (!this.players[0].socket.connected)
+            console.log("Can't establish websocket connection");
+    
         this.players[0].socket.on("keyPressed", (data: { key: string, position: { x: number, y: number, z: number } }) => {
-            console.log(`Input reçu : ${data.key}, position:`, data.position);
+    
+            const before = this.gameScene.getPaddlePosition();
+            console.log("BEFORE:", before.position); // avant de bouger
+            console.log("KEY PRESSED:", data.key);
+    
+            this.gameScene.moovePaddle("players1", data.key);
+    
+            const after = this.gameScene.getPaddlePosition();
+            console.log("AFTER:", after.position); // après le move
         });
     }
-
-
-
-    //send inital state
-
-
-};
+    
 
 
 

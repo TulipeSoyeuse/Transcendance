@@ -63,16 +63,20 @@ export class GameScene {
         return paddle;
     }
 
-    private moovePaddle(playerId: string, direction: string) {
+    moovePaddle(playerId: string, direction: string) {
         switch (direction) {
             case "o" : 
                 this.leftPaddle.position.z += 0.1;
+                break;
             case "l" :
                 this.leftPaddle.position.z -= 0.1;
+                break;
             case "q" : 
                 this.rightPaddle.position.z += 0.1;
+                break;
             case "w" :
                 this.rightPaddle.position.z -= 0.1;
+                break;
         }
     }
 
@@ -93,4 +97,8 @@ export class GameScene {
         };
     }
     
+
+    getPaddlePosition() {
+        return this.rightPaddle;
+    }
 }

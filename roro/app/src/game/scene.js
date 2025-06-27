@@ -32,12 +32,16 @@ export class GameScene {
         switch (direction) {
             case "o":
                 this.leftPaddle.position.z += 0.1;
+                break;
             case "l":
                 this.leftPaddle.position.z -= 0.1;
+                break;
             case "q":
                 this.rightPaddle.position.z += 0.1;
+                break;
             case "w":
                 this.rightPaddle.position.z -= 0.1;
+                break;
         }
     }
     getSceneState() {
@@ -55,5 +59,8 @@ export class GameScene {
                 rotationQuaternion: this.rightPaddle.rotationQuaternion ? this.rightPaddle.rotationQuaternion.toArray(new Array(4)) : null,
             }
         };
+    }
+    getPaddlePosition() {
+        return this.rightPaddle;
     }
 }

@@ -1,9 +1,15 @@
 import { createScene } from "./scene.js";
 import { PlayerInput } from "./inputController.js";
 import { GameManager } from "./handleGame.js";
+import { socket } from "../../game.js";
 //import * as BABYLON from 'babylonjs';
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
+function updateData(playerInput) {
+    socket.on("sceneUpdate", (sceneState) => {
+        playerInput._updateFromServer(sceneState.leftPaddle, sceneState.rightPaddle);
+    });
+}
 async function initScene() {
     // Récupérer le canvas
     const canvas = document.getElementById("renderCanvas");
@@ -21,6 +27,7 @@ async function initScene() {
         scene.render();
     });
     //updatedata
+    updateData(playerInput);
     window.addEventListener("resize", function () {
         engine.resize();
     });

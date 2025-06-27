@@ -14,9 +14,11 @@ export class PlayerInput {
 
     leftStartZ: number | null;
     rightStartZ: number | null;
+    Scene: BABYLON.Scene;
 
     constructor(scene: BABYLON.Scene) {
         scene.actionManager = new BABYLON.ActionManager(scene);
+        this.Scene = scene;
         this.inputMap = {};
 
         this.leftStartZ = null;
@@ -40,6 +42,7 @@ export class PlayerInput {
         scene.onBeforeRenderObservable.add(() => {
             this._updateFromKeyboard(scene);
         });
+
     }
 
     private _updateFromKeyboard(scene: BABYLON.Scene): void {
@@ -57,7 +60,7 @@ export class PlayerInput {
 
         if (this.inputMap["o"] && leftPaddle) {
             console.log("j'appui mdr");
-            leftPaddle.position.z += 0.1;
+            //leftPaddle.position.z += 0.1;
             socket.emit("keyPressed", {
                 key: "o",
                 position: {
@@ -68,9 +71,9 @@ export class PlayerInput {
             });
         }
         if (this.inputMap["l"] && leftPaddle) {
-            leftPaddle.position.z -= 0.1;
+            //leftPaddle.position.z -= 0.1;
             socket.emit("keyPressed", {
-                key: "o",
+                key: "l",
                 position: {
                     x: leftPaddle.position.x,
                     y: leftPaddle.position.y,
@@ -80,20 +83,20 @@ export class PlayerInput {
         }
 
         if (this.inputMap["q"] && rightPaddle) {
-            rightPaddle.position.z += 0.1;
+            //rightPaddle.position.z += 0.1;
             socket.emit("keyPressed", {
-                key: "o",
+                key: "q",
                 position: {
-                    x: leftPaddle.position.x,
-                    y: leftPaddle.position.y,
-                    z: leftPaddle.position.z
+                    x: rightPaddle.position.x,
+                    y: rightPaddle.position.y,
+                    z: rightPaddle.position.z
                 }
             });
         }
         if (this.inputMap["w"] && rightPaddle) {
-            rightPaddle.position.z -= 0.1;
+            //rightPaddle.position.z -= 0.1;
             socket.emit("keyPressed", {
-                key: "o",
+                key: "w",
                 position: {
                     x: leftPaddle.position.x,
                     y: leftPaddle.position.y,
@@ -102,28 +105,53 @@ export class PlayerInput {
             });
         }
 
-        if (this.inputMap["p"] && leftPaddle && !this.leftAnimating) {
-            this.leftAnimating = true;
-            animateLeftPaddle(leftPaddle, () => {
-                this.leftAnimating = false;
-            });
-        }
+        // if (this.inputMap["p"] && leftPaddle && !this.leftAnimating) {
+        //     //this.leftAnimating = true;
+        //     animateLeftPaddle(leftPaddle, () => {
+        //         this.leftAnimating = false;
+        //     });
+        // }
 
-        if (this.inputMap["d"] && rightPaddle && !this.rightAnimating) {
-            this.rightAnimating = true;
-            animateRightPaddle(rightPaddle, () => {
-                this.rightAnimating = false;
-            });
-        }
+        // if (this.inputMap["d"] && rightPaddle && !this.rightAnimating) {
+        //     //this.rightAnimating = true;
+        //     animateRightPaddle(rightPaddle, () => {
+        //         this.rightAnimating = false;
+        //     });
+        // }
 
-        if (this.inputMap["s"] && !this.ballAnimating) {
-            const ball = scene.getMeshByName("pingPongBall") as BABYLON.Mesh;
-            if (ball) {
-                this.ballAnimating = true;
-                serveBall(ball, scene, () => {
-                    this.ballAnimating = false;
-                });
-            }
+        // if (this.inputMap["s"] && !this.ballAnimating) {
+        //     const ball = scene.getMeshByName("pingPongBall") as BABYLON.Mesh;
+        //     if (ball) {
+        //         this.ballAnimating = true;
+        //         serveBall(ball, scene, () => {
+        //             this.ballAnimating = false;
+        //         });
+        //     }
+        // }
+
+    }
+
+
+    _updateFromServer(leftPaddle: any, rightPaddle: any) {   
+        
+        const _left = this.Scene.getMeshByName("paddleLeft_hitbox") as BABYLON.Mesh;
+        const _right = this.Scene.getMeshByName("paddleRight_hitbox") as BABYLON.Mesh;
+
+
+        console.log("leftPaddle", leftPaddle);
+        console.log("rightPaddle", rightPaddle);
+
+      
+        if (_left && leftPaddle?.position) {
+          _left.position.x = leftPaddle.position[0];
+          _left.position.y = leftPaddle.position[1];
+          _left.position.z = leftPaddle.position[2];
+        }
+      
+        if (_right && rightPaddle?.position) {
+          _right.position.x = rightPaddle.position[0];
+          _right.position.y = rightPaddle.position[1];
+          _right.position.z = rightPaddle.position[2];
         }
     }
 }

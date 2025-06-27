@@ -6,28 +6,33 @@ export class Room {
         this.players.push(player1);
         this.gameScene = new GameScene();
         this.keyPressedListener();
+        this.emitToPlayers(player1);
     }
-    //envoyer les infos aux players 
-    emitToPlayers(player1, player2) {
+    emitToPlayers(player1) {
         if (!player1.socket) {
             console.error("Le joueur n'a pas de socketId");
             return;
         }
-        const sceneState = this.gameScene.getSceneState(); // récupère l’état
-        // Émission vers le joueur avec son socketId
-        player1.socket.emit("sceneUpdate", sceneState);
+        setInterval(() => {
+            const sceneState = this.gameScene.getSceneState();
+            player1.socket.emit("sceneUpdate", sceneState);
+        }, 1000 / 30);
     }
     //ecoute les touches pressées
     // TODO : la connexion fonctionne, mais si elle est perdue on est obligé de revenir sur /game.ts pour en recrrer une  nouvelle
     keyPressedListener() {
         if (!this.players[0].socket.connected)
-            console.log("la socket est die");
+            console.log("Can't establish websocket connection");
         this.players[0].socket.on("keyPressed", (data) => {
-            console.log(`Input reçu : ${data.key}, position:`, data.position);
+            const before = this.gameScene.getPaddlePosition();
+            console.log("BEFORE:", before.position); // avant de bouger
+            console.log("KEY PRESSED:", data.key);
+            this.gameScene.moovePaddle("players1", data.key);
+            const after = this.gameScene.getPaddlePosition();
+            console.log("AFTER:", after.position); // après le move
         });
     }
 }
-;
 /*
 deux type de room: une room locale et une remote, la locale n'attend pas qu'un autre joueur se connecte,
 elle balance la scene avec un invité comme player2. Le constructeur attend l'username du joueur, il crée le match
