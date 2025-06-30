@@ -12,7 +12,10 @@ import { socket } from "../../game.js";
 
 function updateData(playerInput: PlayerInput) {
     socket.on("sceneUpdate", (sceneState: any) =>  {
-        playerInput._updateFromServer(sceneState.leftPaddle, sceneState.rightPaddle);
+        playerInput._updateFromServer(sceneState.leftPaddle, sceneState.rightPaddle, sceneState.ball);
+    });
+    socket.on("animationUpdate", (sceneState: any) => {
+        playerInput._updateFromServer(sceneState.leftPaddle, sceneState.rightPaddle, sceneState.ball);
     });
 }
 
@@ -30,7 +33,7 @@ async function initScene() {
     if (!ball || !ground) {
         throw new Error("Le mesh 'pingPongBall' n'a pas été trouvé !");
     }
-    const gameManager = new GameManager(scene, ball, ground);
+    //const gameManager = new GameManager(scene, ball, ground);
 
 
     engine.runRenderLoop(function () {
@@ -44,8 +47,10 @@ async function initScene() {
         engine.resize();
     });
 }
-// Appeler la fonction d'initialisation
+
 initScene();
+
+
 
 
 

@@ -92,6 +92,7 @@ export class GameManager {
 }
 _a = GameManager;
 _GameManager_instance = { value: void 0 };
+// Mesurer la latence toutes les 5 secondes
 /*
 SessionId : id généré par fastifysession renvoyé par le cookie et retransmis via les websocket
 ! pb : une fois le cookie expiré, sessionId est mort (comme la session)

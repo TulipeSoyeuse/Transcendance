@@ -1,16 +1,22 @@
 import { Player } from "../../includes/custom.js";
 import { GameScene } from "./scene.js";
+import { GameLogic } from "./gameLogic.js";
 
 export class Room {
     id: string = "null";
     players: Player[] = [];
-    gameScene : GameScene;
-
+    gameScene! : GameScene;
+    gameLogic! : GameLogic; 
     public constructor (mode: string, player1: Player) {
         this.players.push(player1);
-        this.gameScene = new GameScene();
-        this.keyPressedListener();
-        this.emitToPlayers(player1);
+        GameScene.create().then((scene) => {
+            this.gameScene = scene;
+            this.gameLogic = new GameLogic(this.gameScene);
+            this.keyPressedListener();
+            this.emitToPlayers(player1);
+        }).catch((error) => {
+            console.error("Failed to initialize GameScene", error);
+        });
 
     }
 
@@ -23,6 +29,8 @@ export class Room {
         const sceneState = this.gameScene.getSceneState();
         player1.socket.emit("sceneUpdate", sceneState);
         }, 1000 / 30);
+
+        
     }
 
 
@@ -33,18 +41,12 @@ export class Room {
             console.log("Can't establish websocket connection");
     
         this.players[0].socket.on("keyPressed", (data: { key: string, position: { x: number, y: number, z: number } }) => {
-    
-            const before = this.gameScene.getPaddlePosition();
-            console.log("BEFORE:", before.position); // avant de bouger
-            console.log("KEY PRESSED:", data.key);
-    
-            this.gameScene.moovePaddle("players1", data.key);
-    
-            const after = this.gameScene.getPaddlePosition();
-            console.log("AFTER:", after.position); // après le move
+            this.gameScene.moovePaddle("players1", data.key, this.players[0]);
         });
     }
     
+
+}
 
 
 

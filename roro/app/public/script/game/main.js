@@ -1,13 +1,15 @@
 import { createScene } from "./scene.js";
 import { PlayerInput } from "./inputController.js";
-import { GameManager } from "./handleGame.js";
 import { socket } from "../../game.js";
 //import * as BABYLON from 'babylonjs';
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
 function updateData(playerInput) {
     socket.on("sceneUpdate", (sceneState) => {
-        playerInput._updateFromServer(sceneState.leftPaddle, sceneState.rightPaddle);
+        playerInput._updateFromServer(sceneState.leftPaddle, sceneState.rightPaddle, sceneState.ball);
+    });
+    socket.on("animationUpdate", (sceneState) => {
+        playerInput._updateFromServer(sceneState.leftPaddle, sceneState.rightPaddle, sceneState.ball);
     });
 }
 async function initScene() {
@@ -22,7 +24,7 @@ async function initScene() {
     if (!ball || !ground) {
         throw new Error("Le mesh 'pingPongBall' n'a pas été trouvé !");
     }
-    const gameManager = new GameManager(scene, ball, ground);
+    //const gameManager = new GameManager(scene, ball, ground);
     engine.runRenderLoop(function () {
         scene.render();
     });
@@ -32,7 +34,6 @@ async function initScene() {
         engine.resize();
     });
 }
-// Appeler la fonction d'initialisation
 initScene();
 /**
  J'ai besoin de recup : L'orientation de la camera

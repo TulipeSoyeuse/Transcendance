@@ -106,6 +106,8 @@ export class GameManager {
 }
 
 
+// Mesurer la latence toutes les 5 secondes
+
 
 
 /*

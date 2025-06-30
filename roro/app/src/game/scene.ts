@@ -1,31 +1,49 @@
 
-import { NullEngine, Scene, MeshBuilder, Vector3, Quaternion, FreeCamera, Mesh } from "@babylonjs/core";
+import { NullEngine, Scene, MeshBuilder, Vector3, Quaternion, FreeCamera, Mesh, Animation, PhysicsImpostor} from "@babylonjs/core";
+//import { Animation } from "@babylonjs/core/Animations/animation";
+import { Player } from "../../includes/custom.js";
+import { AmmoJSPlugin } from "@babylonjs/core";
+import type AmmoType from 'ammojs-typed';
+import Ammo from 'ammojs-typed';
 
 export class GameScene {
     engine: NullEngine;
     scene: Scene;
-    ball: Mesh;
+    ball!: Mesh;
     camera: FreeCamera;
-    leftPaddle: Mesh;
-    rightPaddle: Mesh;
+    leftPaddle!: Mesh;
+    rightPaddle!: Mesh;
+    leftAnimating: boolean;
+    RightAnimating: boolean;
+    ground!: Mesh;
 
-    constructor() {
+    private constructor() {
         // NullEngine = server-side Babylon sans rendu
         this.engine = new NullEngine();
         this.scene = new Scene(this.engine);
+        this.leftAnimating = false;
+        this.RightAnimating = false;
+    }
 
-        // Position de caméra (optionnelle ici)
-        this.camera = new FreeCamera("camera", new Vector3(0, 5, -10), this.scene);
+    //TODO : trouver une plus jolie maniere de faire ca 
+    static async create(): Promise<GameScene> {
+        const instance = new GameScene();
 
-        // Création de la balle
-        this.ball = MeshBuilder.CreateSphere("pingPongBall", {
+        instance.camera = new FreeCamera("camera", new Vector3(0, 5, -10), instance.scene);
+
+        await instance.initializePhysics();
+
+        console.log("Physics initialized, setting up scene...");
+
+        instance.ground = MeshBuilder.CreateGround("ground", { width: 30, height: 20 }, instance.scene);
+
+        instance.ball = MeshBuilder.CreateSphere("pingPongBall", {
             diameter: 1,
             segments: 32
-        }, this.scene);
-        this.ball.position = new Vector3(-13, 10, 0);
+        }, instance.scene);
+        instance.ball.position = new Vector3(-13, 10, 0);
 
-        // Paddle gauche
-        this.leftPaddle = this.createPaddle(
+        instance.leftPaddle = instance.createPaddle(
             "paddleLeft",
             new Vector3(-16, 1.5, 0),
             new Vector3(2, 2, 2),
@@ -33,14 +51,47 @@ export class GameScene {
             -Math.PI / 2
         );
 
-        // Paddle droit
-        this.rightPaddle = this.createPaddle(
+        instance.rightPaddle = instance.createPaddle(
             "paddleRight",
             new Vector3(16, 1.5, 0),
             new Vector3(2, 2, 2),
             new Vector3(0, 0, -1),
             -Math.PI / 2
         );
+
+        instance.ball.physicsImpostor = new PhysicsImpostor(
+            instance.ball,
+            PhysicsImpostor.SphereImpostor,
+            { mass: 0.40, restitution: 0.9 },
+            instance.scene
+        );
+
+        instance.ground.physicsImpostor = new PhysicsImpostor(
+            instance.ground,
+            PhysicsImpostor.BoxImpostor,
+            { mass: 0, restitution: 0.5 },
+            instance.scene
+        );
+
+        instance.leftPaddle.physicsImpostor = new PhysicsImpostor(
+            instance.leftPaddle,
+            PhysicsImpostor.BoxImpostor,
+            { mass: 0, restitution: 0.9 },
+            instance.scene
+        );
+
+        instance.rightPaddle.physicsImpostor = new PhysicsImpostor(
+            instance.rightPaddle,
+            PhysicsImpostor.BoxImpostor,
+            { mass: 0, restitution: 0.9 },
+            instance.scene
+        );
+
+        instance.engine.runRenderLoop(() => {
+            instance.scene.render();
+        });
+
+        return instance;
     }
 
     private createPaddle(
@@ -50,21 +101,23 @@ export class GameScene {
         rotationAxis: Vector3,
         rotationAngle: number
     ): Mesh {
+        const scaleFactor = 0.8; 
         const paddle = MeshBuilder.CreateBox(name, {
             width: 1,
-            height: 3,
+            height: 3, 
             depth: 0.5
         }, this.scene);
-
+    
         paddle.position = position.clone();
         paddle.scaling = scaling.clone();
         paddle.rotationQuaternion = Quaternion.RotationAxis(rotationAxis, rotationAngle);
-
+    
         return paddle;
     }
 
-    moovePaddle(playerId: string, direction: string) {
+    moovePaddle(playerId: string, direction: string, players: Player) {
         switch (direction) {
+            // paddle moove
             case "o" : 
                 this.leftPaddle.position.z += 0.1;
                 break;
@@ -76,6 +129,18 @@ export class GameScene {
                 break;
             case "w" :
                 this.rightPaddle.position.z -= 0.1;
+                break;
+
+            // paddle shoot
+            case "p" : 
+                this.animateLeftPaddle(players, () => {
+                    this.leftAnimating = false;
+                });
+                break;
+            case "d" : 
+                this.animateRightPaddle(players, () => {
+                    this.RightAnimating = false;
+                });
                 break;
         }
     }
@@ -101,4 +166,110 @@ export class GameScene {
     getPaddlePosition() {
         return this.rightPaddle;
     }
+
+
+
+    animateLeftPaddle(players: Player, onComplete: any) {
+        if (!this.leftPaddle) {
+            console.error("Left paddle doesn't exist");
+            if (onComplete) onComplete();
+            return;
+        }
+    
+        this.leftPaddle.animations = [];
+    
+        const startPos = this.leftPaddle.position.clone(); 
+        const forwardPos = startPos.add(new Vector3(3, 0, 1)); 
+    
+        const animation = new Animation(
+            "paddleHitAnimation",
+            "position",
+            30,
+            Animation.ANIMATIONTYPE_VECTOR3,
+            Animation.ANIMATIONLOOPMODE_CONSTANT
+        );
+    
+        animation.setKeys([
+            { frame: 0, value: startPos },
+            { frame: 10, value: forwardPos },
+            { frame: 20, value: startPos }
+        ]);
+    
+        this.leftPaddle.animations.push(animation);
+    
+        const anim = this.scene.beginAnimation(this.leftPaddle, 0, 20, false);
+
+
+        if (!players.socket.connected) {
+            console.error("Player socket is disconnected");
+        }
+        const observable = this.scene.onBeforeRenderObservable.add(() => {
+            const sceneState = this.getSceneState();
+            players.socket.emit("animationUpdate", sceneState);
+        });
+    
+        anim.onAnimationEnd = () => {
+            this.scene.onBeforeRenderObservable.remove(observable); 
+            if (onComplete) onComplete();
+        };
+    }
+
+
+    animateRightPaddle(players: Player, onComplete: any) {
+        if (!this.rightPaddle) {
+            console.error("Left paddle doesn't exist");
+            if (onComplete) onComplete();
+            return;
+        }
+    
+        this.rightPaddle.animations = [];
+    
+        const startPos = this.rightPaddle.position.clone(); 
+        const forwardPos = startPos.add(new Vector3(-3, 0, 1)); 
+    
+        const animation = new Animation(
+            "paddleHitAnimation",
+            "position",
+            30,
+            Animation.ANIMATIONTYPE_VECTOR3,
+            Animation.ANIMATIONLOOPMODE_CONSTANT
+        );
+    
+        animation.setKeys([
+            { frame: 0, value: startPos },
+            { frame: 10, value: forwardPos },
+            { frame: 20, value: startPos }
+        ]);
+    
+        this.rightPaddle.animations.push(animation);
+    
+        const anim = this.scene.beginAnimation(this.rightPaddle, 0, 20, false);
+
+
+        if (!players.socket.connected) {
+            console.error("Player socket is disconnected");
+        }
+        const observable = this.scene.onBeforeRenderObservable.add(() => {
+            const sceneState = this.getSceneState();
+            players.socket.emit("animationUpdate", sceneState);
+        });
+    
+        anim.onAnimationEnd = () => {
+            this.scene.onBeforeRenderObservable.remove(observable); 
+            if (onComplete) onComplete();
+        };
+    }
+
+    private async initializePhysics(): Promise<void> {
+        try {
+            const ammo = await Ammo(); // Charger Ammo.js
+            const ammoPlugin = new AmmoJSPlugin(true, ammo); // Crer le plugin Ammo.js
+            this.scene.enablePhysics(new Vector3(0, -9.81, 0), ammoPlugin); // Activer la physique avec la gravite
+            console.log("Physics engine initialized successfully with Ammo.js");
+        } catch (error) {
+            console.error("Failed to initialize Ammo.js", error);
+            throw new Error("Physics initialization failed");
+        }
+    }
+
 }

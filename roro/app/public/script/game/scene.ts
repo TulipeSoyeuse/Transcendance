@@ -51,14 +51,19 @@ async function loadPaddle(scene: BABYLON.Scene) {
             hitbox.rotationQuaternion = container.rotationQuaternion.clone();
             hitbox.scaling = container.scaling.clone();
 
-            hitbox.physicsImpostor = new BABYLON.PhysicsImpostor(
-                hitbox,
-                BABYLON.PhysicsImpostor.BoxImpostor,
-                { mass: 0, restitution: 0.9 },
-                scene
-            );
 
-            // Syncro les chagnement a chaque frame
+            console.log(`Mesh créé : ${container.name}`, {
+                position: container.position,
+                scaling: container.scaling,
+                rotationQuaternion: container.rotationQuaternion
+            });
+
+            console.log(`Hitbox créée : ${hitbox.name}`, {
+                position: hitbox.position,
+                scaling: hitbox.scaling,
+                rotationQuaternion: hitbox.rotationQuaternion
+            });
+
             scene.onBeforeRenderObservable.add(() => {
                 container.position.copyFrom(hitbox.position);
                 if (hitbox.rotationQuaternion) {
@@ -136,7 +141,7 @@ export async function createScene(engine: BABYLON.Engine, canvas: HTMLCanvasElem
         depth: 20
     }, scene);
 
-    setPhysicImpostor(pingPongBall, ground, groundMaterial, scene);
+    //setPhysicImpostor(pingPongBall, ground, groundMaterial, scene);
     await loadPaddle(scene);
     return scene;
 };

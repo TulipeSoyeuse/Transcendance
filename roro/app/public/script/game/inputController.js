@@ -34,7 +34,6 @@ export class PlayerInput {
         }
         if (this.inputMap["o"] && leftPaddle) {
             console.log("j'appui mdr");
-            //leftPaddle.position.z += 0.1;
             socket.emit("keyPressed", {
                 key: "o",
                 position: {
@@ -45,7 +44,6 @@ export class PlayerInput {
             });
         }
         if (this.inputMap["l"] && leftPaddle) {
-            //leftPaddle.position.z -= 0.1;
             socket.emit("keyPressed", {
                 key: "l",
                 position: {
@@ -56,7 +54,6 @@ export class PlayerInput {
             });
         }
         if (this.inputMap["q"] && rightPaddle) {
-            //rightPaddle.position.z += 0.1;
             socket.emit("keyPressed", {
                 key: "q",
                 position: {
@@ -67,7 +64,6 @@ export class PlayerInput {
             });
         }
         if (this.inputMap["w"] && rightPaddle) {
-            //rightPaddle.position.z -= 0.1;
             socket.emit("keyPressed", {
                 key: "w",
                 position: {
@@ -77,18 +73,26 @@ export class PlayerInput {
                 }
             });
         }
-        // if (this.inputMap["p"] && leftPaddle && !this.leftAnimating) {
-        //     //this.leftAnimating = true;
-        //     animateLeftPaddle(leftPaddle, () => {
-        //         this.leftAnimating = false;
-        //     });
-        // }
-        // if (this.inputMap["d"] && rightPaddle && !this.rightAnimating) {
-        //     //this.rightAnimating = true;
-        //     animateRightPaddle(rightPaddle, () => {
-        //         this.rightAnimating = false;
-        //     });
-        // }
+        if (this.inputMap["p"] && leftPaddle && !this.leftAnimating) {
+            socket.emit("keyPressed", {
+                key: "p",
+                position: {
+                    x: leftPaddle.position.x,
+                    y: leftPaddle.position.y,
+                    z: leftPaddle.position.z
+                }
+            });
+        }
+        if (this.inputMap["d"] && rightPaddle && !this.rightAnimating) {
+            socket.emit("keyPressed", {
+                key: "d",
+                position: {
+                    x: leftPaddle.position.x,
+                    y: leftPaddle.position.y,
+                    z: leftPaddle.position.z
+                }
+            });
+        }
         // if (this.inputMap["s"] && !this.ballAnimating) {
         //     const ball = scene.getMeshByName("pingPongBall") as BABYLON.Mesh;
         //     if (ball) {
@@ -99,11 +103,10 @@ export class PlayerInput {
         //     }
         // }
     }
-    _updateFromServer(leftPaddle, rightPaddle) {
+    _updateFromServer(leftPaddle, rightPaddle, ball) {
         const _left = this.Scene.getMeshByName("paddleLeft_hitbox");
         const _right = this.Scene.getMeshByName("paddleRight_hitbox");
-        console.log("leftPaddle", leftPaddle);
-        console.log("rightPaddle", rightPaddle);
+        const _ball = this.Scene.getMeshByName("pingPongBall");
         if (_left && leftPaddle?.position) {
             _left.position.x = leftPaddle.position[0];
             _left.position.y = leftPaddle.position[1];
@@ -113,6 +116,11 @@ export class PlayerInput {
             _right.position.x = rightPaddle.position[0];
             _right.position.y = rightPaddle.position[1];
             _right.position.z = rightPaddle.position[2];
+        }
+        if (_ball && ball?.position) {
+            _ball.position.x = ball.position[0];
+            _ball.position.y = ball.position[1];
+            _ball.position.z = ball.position[2];
         }
     }
 }

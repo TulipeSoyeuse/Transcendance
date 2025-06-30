@@ -51,6 +51,7 @@ server.register(root.auth);
 const gm = GameManager.getInstance(server); 
 
 
+
 server.listen({ port: 8080 }, (err, address) => {
     if (err) {
         console.error(err);
