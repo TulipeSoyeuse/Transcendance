@@ -2,8 +2,8 @@ import fp from "fastify-plugin";
 import { parse } from "cookie";
 // Verify session before connection & link session to socket
 function setupSocketAuth(io, fastify) {
-    io.use(async (socket, next) => {
-        const cookies = parse(socket.request.headers.cookie || "");
+    io.use((socket, next) => {
+        const cookies = parse(socket.handshake.headers.cookie || "");
         const signedSessionId = cookies.sessionId;
         if (!signedSessionId)
             return (next(new Error("No session Id found")));
@@ -11,12 +11,10 @@ function setupSocketAuth(io, fastify) {
         fastify.sessionStore.get(sessionId, (err, session) => {
             if (err || !session || !session.authenticated)
                 return (next(new Error("Unauthorized connection")));
-            socket.session = session; // ! Extend socket type in interface
-            session.socketId = socket.id; // ! Extend session type in interface
+            socket.session = session;
             fastify.sessionStore.set(sessionId, session, (e) => {
                 if (e)
                     return (next(new Error("No session Id found")));
-                console.log("Session user ID = ", socket.session.userId);
                 next();
             });
         });
@@ -37,6 +35,55 @@ function handleConnection(fastify, socket, io) {
         io.emit("message", data);
     });
 }
+/*
+! HANDLE DMs
+socket.on("private-message", ({ toUserId, message }) => {
+    const targetSocketId = userSockets.get(toUserId);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("private-message", {
+        from: userId,
+        message,
+      });
+    }
+  });
+
+! HANDLE DISCONNECT
+socket.on("disconnect", () => {
+    userSockets.delete(userId);
+  });
+*/
+/*
+! DMs with username
+socket.on("private-message", async ({ toUsername, message }) => {
+  // Find the socket of the target user by username
+  const toSocketEntry = [...socketUsers.entries()].find(
+    ([, user]) => user.username === toUsername
+  );
+
+  if (!toSocketEntry) return;
+
+  const [toSocketId, toUser] = toSocketEntry;
+
+  // Save message to DB
+  await fastify.database.run(
+    `INSERT INTO messages (senderId, receiverId, content) VALUES (?, ?, ?)`,
+    [socket.userId, toUser.userId, message]
+  );
+
+  // Send to recipient
+  io.to(toSocketId).emit("private-message", {
+    fromUsername: socket.username,
+    message,
+  });
+
+  // Optionally, send to sender too
+  socket.emit("private-message", {
+    fromUsername: socket.username,
+    message,
+    toUsername,
+  });
+});
+*/
 // Handle message recovery after disconnection
 async function handleRecovery(socket, fastify) {
     if (!socket.recovered) {
@@ -51,26 +98,64 @@ async function handleRecovery(socket, fastify) {
         }
     }
 }
+/*********************** Get active users */
+function listUsers(socket, io) {
+    const users = [];
+    for (let [id, socket] of io.of("/").sockets) {
+        users.push({
+            userID: id,
+            username: socket.username,
+        });
+    }
+    socket.emit("users", users);
+}
+// New connection - notify existing users
+function notifyUsers(socket) {
+    socket.broadcast.emit("User connected", {
+        userID: socket.id,
+        username: socket.username,
+    });
+}
+/******************************************* */
+// Attach username to socket
+async function getUsername(fastify, userId) {
+    const row = await fastify.database.fetch_one(`SELECT username FROM user WHERE id = ?`, [userId]);
+    if (!row)
+        return ("Unknown user");
+    return (row.username);
+}
 const chatPlugin = async (fastify) => {
     const io = fastify.io;
-    // const userSockets = new Map<number, string>();       // ! Attach user ID to socket for later use
+    // const userSockets = new Map<number, string>();       // Attach user ID to socket for later use
     setupSocketAuth(io, fastify);
-    io.on("connection", (socket) => {
+    io.on("connection", async (socket) => {
+        socket.username = await getUsername(fastify, socket.session.userId);
         handleConnection(fastify, socket, io);
-        // userSockets.set(socket.session.user.id, socket.id); // ! 1 tab = 1 session (if multiple tabs : Map<userId, Set<socket.id>>)
+        // userSockets.set(socket.session.user.id, socket.id); // 1 tab = 1 session (if multiple tabs : Map<userId, Set<socket.id>>)
         handleRecovery(socket, fastify);
+        listUsers(socket, io);
+        notifyUsers(socket);
+        // ! handle disconnect + call on logout + session expiration
     });
 };
 export default fp(chatPlugin);
+// SERVER-SIDE
+// io.emit(event, data) – Broadcast to all clients
+// socket.emit(event, data) – Send to the specific socket
+// (client to server = socket.emit("message", "Hello server!");)
+// socket.broadcast.emit(event, data) – Send to everyone except sender
 /*
-interface Session {
-  user?: { id: number; username: string };
-  authenticated?: boolean;
-  socketId?: string;
-}
+If multiple sockets per userId :
+if (!userSockets.has(userId)) {
+    userSockets.set(userId, new Set());
+  }
+  userSockets.get(userId).add(socket);
 
-interface Socket {
-  session?: MySession;
-  userId?: number;
-}
+  In this case, disconnect handler :
+    socket.on("disconnect", () => {
+    userSockets.get(userId).delete(socket);
+    if (userSockets.get(userId).size === 0) {
+      userSockets.delete(userId);
+    }
+  });
 */ 

@@ -1,17 +1,5 @@
-declare const io: any;
 let lastSenderId = "";
 let lastMessageTime: number = 0;
-let counter = 0;
-const lastOffset = parseInt(localStorage.getItem("serverOffset") || "0");
-const socket = io('http://localhost:8080', {
-    withCredentials: true,
-    transports: ['websocket'],
-    auth: {
-        serverOffset: lastOffset
-      },
-    // ackTimeout: 10000, // Use emit with ack to guarantee msg delivery
-    // retries: 3
-});
 
 async function loadBubbleTemplate(templatePath : string) {
     try {
@@ -37,7 +25,7 @@ function updateBubbleHeader(bubble: Element, senderId: string) {
   if (isSameSender && isRecent && headerElem) headerElem.remove();
 }
 
-async function addChatBubble(message : string, isSent : boolean, senderId : string) {
+export default async function addChatBubble(message : string, isSent : boolean, senderId : string) {
   const templatePath = isSent ? "/chat/sent-bubble.html" : "/chat/received-bubble.html";
   const bubble = await loadBubbleTemplate(templatePath);
   if (!bubble) return;
@@ -49,32 +37,3 @@ async function addChatBubble(message : string, isSent : boolean, senderId : stri
   conversation.appendChild(bubble);
   conversation.scrollTop = conversation.scrollHeight;
 }
-
-// Send message
-document.querySelector('button')?.addEventListener('click', (e) => {
-    console.log("Sending message...");
-    e.preventDefault();
-    const input = document.querySelector('textarea');
-    if (input && input.value) {
-        // compute unique offset (ensure client delivery after state recovery/temp disconnection)
-        const clientOffset = `${socket.id}-${counter++}`; // ! adds loading time ?
-        socket.emit("message", input.value, clientOffset);
-        input.value = "";
-    }
-    input?.focus();
-});
-
-
-// Listen for messages
-socket.on("message", async ({ senderId, msg, serverOffset } :
-    { senderId: string; msg: string, serverOffset: string }) => {
-    console.log(`Received message from ${senderId}: ${msg}`);
-    const isSent = senderId === socket.id;
-    localStorage.setItem("serverOffset", serverOffset);
-    socket.auth.serverOffset = serverOffset;
-    await addChatBubble(msg, isSent, senderId);
-});
-
-// ! Disconnect
-// ! Announce next tournament (io.emit)
-// server side : io.to(session.socketId).emit("event", data);
