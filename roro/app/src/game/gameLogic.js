@@ -1,13 +1,15 @@
 import { MeshBuilder, Vector3, StandardMaterial } from "@babylonjs/core";
-import { AdvancedDynamicTexture, TextBlock, Control } from "@babylonjs/gui";
+import { TextBlock } from "@babylonjs/gui";
 export class GameLogic {
-    constructor(gameScene) {
+    constructor(gameScene, player1, player2) {
         this.player1Score = 0;
         this.player2Score = 0;
         this.scene = gameScene.scene;
         this.ball = gameScene.ball;
         this.floor = gameScene.ground;
         this.scoreText = new TextBlock();
+        this.player1 = player1;
+        this.player2 = player2;
         this.scoreText.text = "Score: 0";
         // Limiter la vitesse de la balle
         this.scene.onBeforeRenderObservable.add(() => {
@@ -59,6 +61,11 @@ export class GameLogic {
         this.sideRightZone.material = matSideRight;
     }
     _initBallSuperviseur() {
+        // 1. Écoute les positions de la balle envoyées par le client
+        this.player1.socket.on("ballPositionUpdate", (pos) => {
+            this.ball.position.set(pos.x, pos.y, pos.z);
+        });
+        // 2. Vérifie les collisions à chaque frame
         this.scene.registerBeforeRender(() => {
             if (this.ball.intersectsMesh(this.leftZone, false)) {
                 this._handlePointLoss('player2');
@@ -84,44 +91,11 @@ export class GameLogic {
             this.player1Score++;
             winner = 'player1';
         }
-        //this._updateUI();
-        this._resetBall(winner);
-    }
-    _createGUI() {
-        const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("UI");
-        this.scoreText = new TextBlock();
-        this.scoreText.text = "Joueur 1: 0 | Joueur 2: 0";
-        this.scoreText.color = "white";
-        this.scoreText.fontFamily = "Verdana";
-        this.scoreText.fontSize = 24;
-        this.scoreText.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-        this.scoreText.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-        this.scoreText.left = "10px";
-        this.scoreText.top = "10px";
-        advancedTexture.addControl(this.scoreText);
-    }
-    _updateUI() {
-        this.scoreText.text = `Joueur 1: ${this.player1Score} | Joueur 2: ${this.player2Score}`;
-    }
-    _resetBall(winner) {
-        const tableBox = this.floor.getBoundingInfo().boundingBox;
-        const tableWidth = tableBox.maximum.x - tableBox.minimum.x;
-        const tableCenter = this.floor.position;
-        const ballHeight = tableBox.maximum.y + 0.5;
-        const xOffset = tableWidth / 2 - 2;
-        let x;
-        let serveDir;
-        if (winner === 'player1') {
-            x = tableCenter.x + xOffset;
-            serveDir = -1;
-        }
-        else {
-            x = tableCenter.x - xOffset;
-            serveDir = 1;
-        }
-        const z = tableCenter.z;
-        this.ball.position.set(x, ballHeight, z);
-        this.ball.physicsImpostor.setLinearVelocity(Vector3.Zero());
-        this.ball.physicsImpostor.setAngularVelocity(Vector3.Zero());
+        const scoreData = {
+            player1Score: this.player1Score,
+            player2Score: this.player2Score,
+            winner: winner
+        };
+        this.player1.socket.emit("updateScore", scoreData);
     }
 }

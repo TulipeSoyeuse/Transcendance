@@ -32,6 +32,9 @@ export class GameManager {
     private configureSocketIO(server: FastifyInstance): void {
         server.ready().then(() => {
             server.io.on("connection", (socket) => {
+                socket.on("ping_check", (start: any) => {
+                    socket.emit("pong_check", start); 
+                  });
                 const cookies = cookie.parse(socket.handshake.headers.cookie);
                 const sessionId = cookies.sessionId;
                 if(sessionId) {
@@ -106,14 +109,7 @@ export class GameManager {
 }
 
 
-// Mesurer la latence toutes les 5 secondes
-
-
-
 /*
-SessionId : id généré par fastifysession renvoyé par le cookie et retransmis via les websocket 
+! SessionId : id généré par fastifysession renvoyé par le cookie et retransmis via les websocket 
 ! pb : une fois le cookie expiré, sessionId est mort (comme la session)
-diff entre 
-
-
 */

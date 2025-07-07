@@ -110,6 +110,7 @@ export class PlayerInput {
                     z: leftPaddle.position.z
                 }
             })
+
         }
 
         if (this.inputMap["d"] && rightPaddle && !this.rightAnimating) {
@@ -155,10 +156,15 @@ export class PlayerInput {
           _right.position.z = rightPaddle.position[2];
         }
 
-        if (_ball && ball?.position) {
-            _ball.position.x = ball.position[0];
-            _ball.position.y = ball.position[1];
-            _ball.position.z = ball.position[2];
-        }
+
+        // ! gerer la balle coté serveur fait lagger bcp bcp trop 
+        // if (_ball && ball?.position) {
+        //     _ball.position.x = ball.position[0];
+        //     _ball.position.y = ball.position[1];
+        //     _ball.position.z = ball.position[2];
+        // }
     }
 }
+
+
+// ! https://www.gabrielgambetta.com/client-server-game-architecture.html s

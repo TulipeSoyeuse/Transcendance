@@ -13,6 +13,20 @@ socket.on('connect', () => {
 });
 
 
+function measureLatency() {
+  const start = Date.now();
+  socket.emit("ping_check", start); // envoie le timestamp au serveur
+}
+
+socket.on("pong_check", (start) => {
+  const rtt = Date.now() - start;
+  console.log("RTT (aller-retour) :", rtt + " ms");
+});
+
+// Mesure toutes les 2 secondes
+setInterval(measureLatency, 2000);
+
+
 function resizeCanvas(): void {
   renderCanvas.width = window.innerWidth;
   renderCanvas.height = window.innerHeight;

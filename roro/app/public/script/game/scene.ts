@@ -46,6 +46,13 @@ async function loadPaddle(scene: BABYLON.Scene) {
 
             hitbox.isVisible = false;
 
+            (hitbox as any).physicsImpostor = new BABYLON.PhysicsImpostor(
+                hitbox,
+                BABYLON.PhysicsImpostor.BoxImpostor,
+                { mass: 0, restitution: 0.9 }, // masse 0 = immobile, restitution = rebond
+                scene
+            );
+
             // Syncro hitbot mesh raquette
             hitbox.position = container.position.clone();
             hitbox.rotationQuaternion = container.rotationQuaternion.clone();
@@ -141,7 +148,7 @@ export async function createScene(engine: BABYLON.Engine, canvas: HTMLCanvasElem
         depth: 20
     }, scene);
 
-    //setPhysicImpostor(pingPongBall, ground, groundMaterial, scene);
+    setPhysicImpostor(pingPongBall, ground, groundMaterial, scene);
     await loadPaddle(scene);
     return scene;
 };

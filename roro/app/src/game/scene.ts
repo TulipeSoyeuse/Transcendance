@@ -161,13 +161,6 @@ export class GameScene {
             }
         };
     }
-    
-
-    getPaddlePosition() {
-        return this.rightPaddle;
-    }
-
-
 
     animateLeftPaddle(players: Player, onComplete: any) {
         if (!this.leftPaddle) {

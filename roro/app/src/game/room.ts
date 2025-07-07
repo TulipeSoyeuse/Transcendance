@@ -11,7 +11,7 @@ export class Room {
         this.players.push(player1);
         GameScene.create().then((scene) => {
             this.gameScene = scene;
-            this.gameLogic = new GameLogic(this.gameScene);
+            this.gameLogic = new GameLogic(this.gameScene, this.players[0], this.players[1]);
             this.keyPressedListener();
             this.emitToPlayers(player1);
         }).catch((error) => {

@@ -1,5 +1,6 @@
 import { createScene } from "./scene.js";
 import { PlayerInput } from "./inputController.js";
+import { GameManager } from "./handleGame.js";
 import { socket } from "../../game.js";
 //import * as BABYLON from 'babylonjs';
 /// <reference types="babylonjs" />
@@ -11,6 +12,20 @@ function updateData(playerInput) {
     socket.on("animationUpdate", (sceneState) => {
         playerInput._updateFromServer(sceneState.leftPaddle, sceneState.rightPaddle, sceneState.ball);
     });
+}
+function sendBallPositionRealtime(scene) {
+    // Envoie la position toutes les 50 ms (20 fois par seconde)
+    const ballMesh = scene.getMeshByName("pingPongBall");
+    setInterval(() => {
+        if (!ballMesh)
+            return;
+        const position = {
+            x: ballMesh.position.x,
+            y: ballMesh.position.y,
+            z: ballMesh.position.z,
+        };
+        socket.emit("ballPositionUpdate", position);
+    }, 50);
 }
 async function initScene() {
     // Récupérer le canvas
@@ -24,12 +39,13 @@ async function initScene() {
     if (!ball || !ground) {
         throw new Error("Le mesh 'pingPongBall' n'a pas été trouvé !");
     }
-    //const gameManager = new GameManager(scene, ball, ground);
+    const gameManager = new GameManager(scene, ball, ground);
     engine.runRenderLoop(function () {
         scene.render();
     });
     //updatedata
     updateData(playerInput);
+    sendBallPositionRealtime(scene);
     window.addEventListener("resize", function () {
         engine.resize();
     });

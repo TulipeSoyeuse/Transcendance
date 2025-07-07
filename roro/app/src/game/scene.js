@@ -88,9 +88,6 @@ export class GameScene {
             }
         };
     }
-    getPaddlePosition() {
-        return this.rightPaddle;
-    }
     animateLeftPaddle(players, onComplete) {
         if (!this.leftPaddle) {
             console.error("Left paddle doesn't exist");

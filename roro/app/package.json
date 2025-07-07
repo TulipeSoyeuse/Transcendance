@@ -23,7 +23,6 @@
     "@socket.io/admin-ui": "^0.5.1",
     "@tailwindcss/cli": "^4.1.8",
     "@tailwindcss/vite": "^4.1.8",
-    "@types/babylonjs": "^2.3.31",
     "ammo.js": "^0.0.10",
     "ammojs-typed": "^1.0.6",
     "babylonjs-gui": "^8.12.1",
@@ -37,6 +36,7 @@
     "tailwindcss": "^4.1.8"
   },
   "devDependencies": {
+    "@types/babylonjs": "^2.4.5",
     "@types/bcrypt": "^5.0.2",
     "@types/node": "^22.15.29",
     "@types/pino": "^7.0.4",

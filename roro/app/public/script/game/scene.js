@@ -1,3 +1,4 @@
+import { setPhysicImpostor } from "./config.js";
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
 async function loadPaddle(scene) {
@@ -32,6 +33,8 @@ async function loadPaddle(scene) {
                 depth: size.z
             }, scene);
             hitbox.isVisible = false;
+            hitbox.physicsImpostor = new BABYLON.PhysicsImpostor(hitbox, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, // masse 0 = immobile, restitution = rebond
+            scene);
             // Syncro hitbot mesh raquette
             hitbox.position = container.position.clone();
             hitbox.rotationQuaternion = container.rotationQuaternion.clone();
@@ -101,7 +104,7 @@ export async function createScene(engine, canvas) {
         height: 0.50,
         depth: 20
     }, scene);
-    //setPhysicImpostor(pingPongBall, ground, groundMaterial, scene);
+    setPhysicImpostor(pingPongBall, ground, groundMaterial, scene);
     await loadPaddle(scene);
     return scene;
 }
