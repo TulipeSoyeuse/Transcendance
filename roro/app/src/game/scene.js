@@ -61,14 +61,20 @@ export class GameScene {
                 break;
             // paddle shoot
             case "p":
-                this.animateLeftPaddle(players, () => {
-                    this.leftAnimating = false;
-                });
+                if (!this.leftAnimating) {
+                    this.leftAnimating = true;
+                    this.animateLeftPaddle(players, () => {
+                        this.leftAnimating = false;
+                    });
+                }
                 break;
             case "d":
-                this.animateRightPaddle(players, () => {
-                    this.RightAnimating = false;
-                });
+                if (!this.RightAnimating) {
+                    this.RightAnimating = true;
+                    this.animateRightPaddle(players, () => {
+                        this.RightAnimating = false;
+                    });
+                }
                 break;
         }
     }

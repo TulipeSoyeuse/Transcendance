@@ -29,6 +29,9 @@ export class GameManager {
     _initBallSuperviseur() {
         socket.on("updateScore", (data) => {
             console.log("Score mis à jour :", data);
+            this.player1Score = data.player1Score;
+            this.player2Score = data.player2Score;
+            this.ball.position = data.ball;
             if (data.winner === "player1" || data.winner === "player2") {
                 this._handlePoint(data.winner);
             }
@@ -39,15 +42,15 @@ export class GameManager {
     }
     _handlePoint(winner) {
         if (winner === 'player1') {
-            this.player1Score++;
             console.log("🏆 Point pour Joueur 1 !");
         }
         else {
-            this.player2Score++;
             console.log("🏆 Point pour Joueur 2 !");
         }
+        this.ball.physicsImpostor.setLinearVelocity(BABYLON.Vector3.Zero());
+        this.ball.physicsImpostor.setAngularVelocity(BABYLON.Vector3.Zero());
         this._updateUI();
-        this._resetBall(winner);
+        //this._resetBall(winner);
     }
     _createGUI() {
         const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -64,28 +67,5 @@ export class GameManager {
     }
     _updateUI() {
         this.scoreText.text = `Joueur 1: ${this.player1Score} | Joueur 2: ${this.player2Score}`;
-    }
-    _resetBall(winner) {
-        const tableBox = this.floor.getBoundingInfo().boundingBox;
-        const tableWidth = tableBox.maximum.x - tableBox.minimum.x;
-        const tableCenter = this.floor.position;
-        const ballHeight = tableBox.maximum.y + 0.5;
-        const xOffset = tableWidth / 2 - 2;
-        let x;
-        let serveDir;
-        if (winner === 'player1') {
-            x = tableCenter.x + xOffset;
-            serveDir = -1;
-        }
-        else {
-            x = tableCenter.x - xOffset;
-            serveDir = 1;
-        }
-        const z = tableCenter.z;
-        this.ball.position.x = x;
-        this.ball.position.y = ballHeight;
-        this.ball.position.z = z;
-        this.ball.physicsImpostor.setLinearVelocity(BABYLON.Vector3.Zero());
-        this.ball.physicsImpostor.setAngularVelocity(BABYLON.Vector3.Zero());
     }
 }

@@ -23,9 +23,9 @@ export class GameLogic {
             }
         });
         this._createLimits();
-        // this._createGUI();
         this._initBallSuperviseur();
     }
+    //TODO : souci sur les limites : bordure mal configurée 
     _createLimits() {
         const box = this.floor.getBoundingInfo().boundingBox;
         const width = box.maximum.x - box.minimum.x;
@@ -60,12 +60,14 @@ export class GameLogic {
         this.sideRightZone.position.x = center.x + width / 2 + 0.5;
         this.sideRightZone.material = matSideRight;
     }
+    //TODO : controler le decalage entre la balle du front et la balle du back
     _initBallSuperviseur() {
-        // 1. Écoute les positions de la balle envoyées par le client
+        //update de la balle envoye par le client
         this.player1.socket.on("ballPositionUpdate", (pos) => {
+            console.log("j'update");
             this.ball.position.set(pos.x, pos.y, pos.z);
         });
-        // 2. Vérifie les collisions à chaque frame
+        // point + service 
         this.scene.registerBeforeRender(() => {
             if (this.ball.intersectsMesh(this.leftZone, false)) {
                 this._handlePointLoss('player2');
@@ -91,11 +93,36 @@ export class GameLogic {
             this.player1Score++;
             winner = 'player1';
         }
+        this._resetBall(winner);
         const scoreData = {
             player1Score: this.player1Score,
             player2Score: this.player2Score,
-            winner: winner
+            winner: winner,
+            ball: this.ball.position
         };
         this.player1.socket.emit("updateScore", scoreData);
+    }
+    _resetBall(winner) {
+        const tableBox = this.floor.getBoundingInfo().boundingBox;
+        const tableWidth = tableBox.maximum.x - tableBox.minimum.x;
+        const tableCenter = this.floor.position;
+        const ballHeight = tableBox.maximum.y + 0.5;
+        const xOffset = tableWidth / 2 - 2;
+        let x;
+        let serveDir;
+        if (winner === 'player1') {
+            x = tableCenter.x + xOffset;
+            serveDir = -1;
+        }
+        else {
+            x = tableCenter.x - xOffset;
+            serveDir = 1;
+        }
+        const z = tableCenter.z;
+        this.ball.position.x = x;
+        this.ball.position.y = ballHeight;
+        this.ball.position.z = z;
+        this.ball.physicsImpostor.setLinearVelocity(Vector3.Zero());
+        this.ball.physicsImpostor.setAngularVelocity(Vector3.Zero());
     }
 }
