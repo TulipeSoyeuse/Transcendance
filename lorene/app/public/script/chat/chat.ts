@@ -1,14 +1,6 @@
 import { addChatBubble, loadTemplate }from "./chatBubbles.js";
 import { openChat } from "./chatHistory.js";
 
-export interface User {
-  userID: string;
-  username: string;
-  self?: boolean;
-}
-export let targetId: string | null = null;
-let users: User[] = [];
-
 let counter = 0;
 const lastOffset = parseInt(localStorage.getItem("serverOffset") || "0");
 declare const io: any;
@@ -22,6 +14,15 @@ export const socket = io('http://localhost:8080', {
     // retries: 3
 });
 
+export interface User {
+  userId: string;
+  username: string;
+  self?: boolean;
+}
+export let currentSessionId = "";
+export let targetId: string | null = null;
+let users: User[] = [];
+
 // ********************************************* Update conversation preview */
 async function updateConvPreview(userId: string, targetName: string) {
   const allMessages = document.getElementById("all-messages");
@@ -31,14 +32,14 @@ async function updateConvPreview(userId: string, targetName: string) {
     displayed.classList.add("transition-all", "duration-300");
     allMessages.prepend(displayed);
   } else {
-    const card = await loadTemplate("/chat/conversation.html", "conversation");
+    const card = await loadTemplate("/chat/conversation.html");
     if (!card) return;
     card.setAttribute("data-user-id", userId);
     const name = card.querySelector("p");
     if (name) name.textContent = targetName;
     card.addEventListener("click", () => {
       targetId = userId;
-      openChat({ userID: userId, username: targetName, self: false });
+      openChat({ userId: userId, username: targetName, self: false });
     });
     allMessages.prepend(card);
   }
@@ -48,11 +49,11 @@ async function updateConvPreview(userId: string, targetName: string) {
 // Add user to active users list
 function addActiveUser(userList: HTMLElement, user: User) {
   const li = document.createElement("li");
-  li.textContent = user.username;   // ! If target username needed, get here
+  li.textContent = user.username;
   if (user.self) return;
   li.style.cursor = "pointer";
   li.addEventListener("click", () => {
-    targetId = user.userID;
+    targetId = user.userId;
     console.log("Target set to:", targetId); // ! DEBUG
     openChat(user);
   });
@@ -72,10 +73,8 @@ function displayConnectedUsers() {
 // Get connected users
 socket.on("users", (newUsers: User[]) => {
   newUsers.forEach((user) => {
-    if (user.userID === socket.id) {
-      user.self = true ;
-      socket.auth.username = user.username;
-    }
+    // console.log(`User connected: ${user.username} (${user.userId})`); // ! DEBUG
+    if (user.userId === currentSessionId) user.self = true;
   });
   newUsers = newUsers.sort((a, b) => {
     if (a.self) return -1;
@@ -84,6 +83,8 @@ socket.on("users", (newUsers: User[]) => {
     return a.username > b.username ? 1 : 0;
   });
   users = newUsers;
+  if (users[0]) console.log(`User(0): ${users[0].username}`); // ! DEBUG
+  if (users[1]) console.log(`user[1] = ${users[1].username}`);
   displayConnectedUsers();
 });
 
@@ -95,9 +96,25 @@ socket.on("user connected", (user: User) => {
 
 // ! Add "user disconnected" to update list
 
+
 // *************************************************** Send/Receive messages */
+// Get conversation history
+socket.on("allConversations", (conversations: any[]) => {  // ! check if conv.id needed (maybe attach it to preview instead of data-user-id to avoid api call to get conv id ?)
+  if (!conversations || conversations.length === 0) {
+    console.log("No conversations found.");
+  } else {
+    console.log("Received conversations: ", conversations);
+    for (const conv of conversations) {
+      const otherUser = users.find(u => u.userId === conv.otherUserId.toString());
+      if (otherUser) updateConvPreview(conv.id, otherUser.username!);
+    }
+  }
+});
+
 // Send message
-document.querySelector('button')?.addEventListener('click', (e) => {
+document.getElementById("conversation-container")?.addEventListener('click', (e) => { // ! careful if adding a button on landing page (add id)
+  const target = e.target as HTMLElement;
+  if (target && target.tagName === 'BUTTON') {
     console.log(`Sending message to ${targetId} from ${socket.auth.username}`); // ! DEBUB - get current username
     e.preventDefault();
     const input = document.querySelector('textarea');
@@ -105,30 +122,40 @@ document.querySelector('button')?.addEventListener('click', (e) => {
     const msg = input.value;
     if (input.value) {
         // compute unique offset (ensure client delivery after state recovery/temp disconnection)
-        const clientOffset = `${socket.id}-${counter++}`;
+        const clientOffset = `${currentSessionId}-${Date.now()}-${counter++}`; // !!!!!!!!! CHECK
         socket.emit("message", { targetId: targetId, msg, clientOffset });
         input.value = "";
     }
     input.focus();
+  }
 });
 
 // Listen for messages
 socket.on("message", async ({ senderId, senderUsername, msg, serverOffset } :
     { senderId: string; senderUsername: string, msg: string, serverOffset: string }) => {
     console.log(`Received message from ${senderId}: ${msg}`);     // ! DEBUG
-    const isSent = senderId === socket.id;
-    localStorage.setItem("serverOffset", serverOffset);       // ! Necessary ??
+    const isSent = senderId === currentSessionId;
+    localStorage.setItem("serverOffset", serverOffset);
     socket.auth.serverOffset = serverOffset;
     
     // Update conversation preview
     if (isSent) {
-      const targetUser = users.find(u => u.userID === targetId);
+      const targetUser = users.find(u => u.userId === targetId);
       if (targetUser) updateConvPreview(targetId!, targetUser.username!);
     } else updateConvPreview(targetId!, senderUsername!);
-
-    await addChatBubble(msg, isSent, socket.id);
+    await addChatBubble(msg, isSent, currentSessionId);
 });
 
+socket.on("session", ({ sessionId, username } :
+  { sessionId: string, username: string }) => {
+  currentSessionId = sessionId;
+  socket.auth.username = username;
+});
+
+// ! FIX - sending to user null ??
+// ! FIX users list - bancal
+// ! FIX - load msg history when opening chat-window
+// TODO - update landing page
 // ? add last_seen in conv to send missed messages in case of disconnect ?
 // TODO - handle history
 // TODO - check msg recovery handling
