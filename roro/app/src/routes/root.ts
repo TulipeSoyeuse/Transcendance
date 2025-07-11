@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
-import { getRoot, getGame, getAccount } from "./controllers/root.controller.js";
-import { check_user } from "./controllers/api.controller.js";
+import { getRoot, getGame, getAccount, navbar } from "./controllers/root.controller.js";
+import { check_user, is_logged } from "./controllers/api.controller.js";
 import { register, login, logout } from "./controllers/auth.controller.js";
 
 /**
@@ -17,6 +17,9 @@ async function routes(fastify: FastifyInstance, options: FastifyPluginOptions) {
     // index.html
     fastify.get("/", getRoot(fastify));
 
+    // nav bar
+    fastify.get("/script/nav", navbar);
+
     // game
     fastify.get("/game/pong", getGame(fastify));
 
@@ -25,7 +28,7 @@ async function routes(fastify: FastifyInstance, options: FastifyPluginOptions) {
 }
 
 async function auth(fastify: FastifyInstance, options: FastifyPluginOptions) {
-    //authentification routes
+    //authentification api route, now return json
     fastify.post("/register", register(fastify));
     fastify.post("/login", login(fastify));
     fastify.get("/logout", logout(fastify));
@@ -34,6 +37,7 @@ async function auth(fastify: FastifyInstance, options: FastifyPluginOptions) {
 async function api(fastify: FastifyInstance, options: FastifyPluginOptions) {
     // api/user-check
     fastify.post("/api/check-username", check_user(fastify));
+    fastify.get("/api/islogged", is_logged(fastify));
 }
 
 export default { routes, api, auth };
