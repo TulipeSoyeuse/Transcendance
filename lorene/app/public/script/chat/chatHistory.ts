@@ -1,5 +1,12 @@
-import { User, currentSessionId } from "./chat.js";
+import { currentSessionId } from "./chat.js";
 import { addChatBubble, loadTemplate } from "./chatBubbles.js";
+import { User } from "./chatUsers.js";
+
+export interface Message {
+  content: string;
+  senderId: string;
+  sentAt: Date;
+}
 
 // Get conversation ID
 async function getConversationId(user1: string, user2: string) {
@@ -11,13 +18,14 @@ async function getConversationId(user1: string, user2: string) {
 }
 
 // Get message history
-async function getMessages(conversationId: number) {
+async function getMessageHistory(conversationId: number) {
     const res = await fetch(`/api/chat/${conversationId}/messages`);
     if (res.status === 500) return (null);
     const messages = await res.json();
     return (messages);
 }
 
+// Load chat window
 async function openFirstConv() {
     const convContainer = document.getElementById("conversation-container");
     const chatWindow = await loadTemplate("/chat/chat-window.html");
@@ -27,7 +35,7 @@ async function openFirstConv() {
 
 // Open conversation
 export async function openChat(user: User) {
-    if (!document.getElementById("chat-window")) openFirstConv();
+    if (!document.getElementById("chat-window")) await openFirstConv();
     const chatBox = document.getElementById("conversation-box");
     const recipientName = document.getElementById("recipient-name");
     if (!chatBox || !recipientName) return;
@@ -38,18 +46,21 @@ export async function openChat(user: User) {
       console.log("No existing conversation found.");
       return;
     }
-    const messages = await getMessages(conversationId); // TODO - fix here (load msg history)
+    const messages = await getMessageHistory(conversationId);
     if (messages) {
-        for (const message of messages) {
-          const isSent = message.sender_id === currentSessionId; // ! FIX : align retrieved bubbles according to senderID
-          await addChatBubble(message.content, isSent, currentSessionId);
+      for (const entry of messages) {
+        const message: Message = {
+          content: entry.content,
+          senderId: entry.sender_id.toString(),
+          sentAt: new Date(entry.sent_at)
         }
+        await addChatBubble(currentSessionId, message);
+      }
     } else
-        console.error("Failed to fetch messages for conversation ID:", conversationId);
+      console.error("Failed to fetch messages for conversation ID:", conversationId);
 }
 
-// TODO - display all conversations in conv preview after retreiving them from DB (add API call - getAllConversations)
-// TODO - add search bar for friends & new conversations
+// ? ADD DATES 
 // ! Load profile picture
 // ! Cache Last Messages
 // >> GET /api/chat/:conversationId/messages?since=123
