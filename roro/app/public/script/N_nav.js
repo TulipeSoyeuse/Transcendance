@@ -8,20 +8,41 @@ export async function navbar() {
     if (target) {
         target.querySelector('nav')?.remove();
         target.insertAdjacentHTML("afterbegin", nav);
-        // ---- logout button listener
-        document.addEventListener("click", async function (e) {
+        target.firstChild?.addEventListener("click", async function (e) {
             const target = e.target;
-            if (target && target.id === "logout") {
+            if (target) {
                 e.preventDefault();
-                try {
-                    await fetch("/logout", {
-                        method: "GET",
-                        credentials: "include"
-                    });
-                    window.location.href = "/";
+                // ---- logout button listener ----
+                if (target.id === "logout") {
+                    try {
+                        await fetch("/logout", {
+                            method: "GET",
+                            credentials: "include"
+                        });
+                        window.location.href = "/";
+                    }
+                    catch (err) {
+                        console.error("Logout failed", err);
+                    }
                 }
-                catch (err) {
-                    console.error("Logout failed", err);
+                // ---- account button listener ----
+                else if (target.id === "account") {
+                    try {
+                        const response = await fetch("/account", {
+                            method: "GET",
+                            credentials: "include"
+                        });
+                        const main = await response.text();
+                        let old = document.getElementById("main_content");
+                        if (old)
+                            old.outerHTML = main;
+                        else
+                            console.error("main not found");
+                        history.pushState(null, "", window.location.href + "#account"); // TODO: need more thought
+                    }
+                    catch (err) {
+                        console.error("Logout failed", err);
+                    }
                 }
             }
         });

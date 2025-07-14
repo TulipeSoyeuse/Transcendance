@@ -44,6 +44,7 @@ async function register(event) {
         return [false, null];
 }
 async function login(event) {
+    console.log("ping");
     const form = event.target;
     if (!form) {
         console.error("error: event target is missing");
@@ -69,6 +70,7 @@ async function login(event) {
     }
 }
 export async function initForm() {
+    console.log("init form: ", document.getElementById('LoginForm'), document.getElementById('RegisterForm'));
     const loginform = document.getElementById('LoginForm');
     const registerform = document.getElementById('RegisterForm');
     function openLogin() {
@@ -107,13 +109,15 @@ export async function initForm() {
             if (error_msg_form.textContent = check[1]) {
                 error_msg_form.classList.remove("animate-shake"); // reset
                 void error_msg_form.offsetWidth;
-                error_msg_form.classList.add("animate-shake");
+                error_msg_form.classList.add("animate-shake"); // marche pas #TODO
             }
             else
                 error_msg_form.textContent = check[1];
     });
     // ------------  login  ----------------
+    console.log("registering event login");
     loginform?.addEventListener('submit', async function (event) {
+        console.log("event login");
         event.preventDefault();
         const res = await login(event);
         if (res[0]) {
