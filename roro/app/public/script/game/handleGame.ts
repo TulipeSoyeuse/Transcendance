@@ -3,6 +3,11 @@
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
 
+const player1ScoreDisplay = document.getElementById('player1ScoreDisplay') as HTMLDivElement;
+const player2ScoreDisplay = document.getElementById('player2ScoreDisplay') as HTMLDivElement;
+let player1ScoreValue = document.getElementById('player1ScoreValue') as HTMLSpanElement;
+let player2ScoreValue = document.getElementById('player2ScoreValue') as HTMLSpanElement;
+
 import { socket } from "../../game.js";
 export {};
 
@@ -18,16 +23,12 @@ export class GameManager {
     sideLeftZone!: BABYLON.Mesh;
     sideRightZone!: BABYLON.Mesh;
 
-    scoreText: BABYLON.GUI.TextBlock;
 
     constructor(scene: BABYLON.Scene, pingPongBall: BABYLON.AbstractMesh, floor: BABYLON.AbstractMesh) {
         this.scene = scene;
         this.ball = pingPongBall as BABYLON.Mesh;
         this.floor = floor as BABYLON.GroundMesh;
-        this.scoreText = new BABYLON.GUI.TextBlock();
-        this.scoreText.text = "Score: 0";
 
-        // Limiter la vitesse de la balle
         scene.onBeforeRenderObservable.add(() => {
             const maxSpeed = 13;
             if (this.ball.physicsImpostor) {
@@ -38,8 +39,6 @@ export class GameManager {
                 }
             }
         });
-
-        this._createGUI();
         this._initBallSuperviseur();
     }
 
@@ -67,31 +66,12 @@ export class GameManager {
         (this.ball as any).physicsImpostor.setLinearVelocity(BABYLON.Vector3.Zero());
         (this.ball as any).physicsImpostor.setAngularVelocity(BABYLON.Vector3.Zero());
         this._updateUI();
-        //this._resetBall(winner);
     }
     
-    
-
-    private _createGUI(): void {
-        const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-
-        this.scoreText = new BABYLON.GUI.TextBlock();
-        this.scoreText.text = "Joueur 1: 0 | Joueur 2: 0";
-        this.scoreText.color = "white";
-        this.scoreText.fontFamily = "Verdana";
-        this.scoreText.fontSize = 24;
-
-        this.scoreText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        this.scoreText.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-
-        this.scoreText.left = "10px";
-        this.scoreText.top = "10px";
-
-        advancedTexture.addControl(this.scoreText);
-    }
 
     private _updateUI(): void {
-        this.scoreText.text = `Joueur 1: ${this.player1Score} | Joueur 2: ${this.player2Score}`;
+        player2ScoreValue.textContent = this.player2Score.toString();
+        player1ScoreValue.textContent = this.player1Score.toString();
     }
 
 }

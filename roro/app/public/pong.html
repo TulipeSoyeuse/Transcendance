@@ -13,11 +13,13 @@
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <style>
     #renderCanvas {
-      width: 100%;
-      height: 100%;
-      display: none; /* Masquer le canvas par défaut */
-      box-sizing: border-box;
-    }
+  display: none; 
+  box-sizing: border-box;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 
     #gameModeSelection {
       display: flex;
@@ -43,6 +45,14 @@
     <button id="localButton">Jouer en local</button>
     <button id="remoteButton">Jouer en remote</button>
   </div>
+  <div id="player1ScoreDisplay" class="hidden text-black text-center font-mono text-2xl mt-4">
+    Player1 : <span id="player1ScoreValue">0</span>
+  </div>
+
+  <div id="player2ScoreDisplay" class="hidden text-black text-center font-mono text-2xl mt-4">
+    Player2 : <span id="player2ScoreValue">0</span>
+  </div>
+
   <canvas id="renderCanvas"></canvas>
   <!-- Chargement du script principal -->
   <script type="module" src="/script/game/main.js"></script>

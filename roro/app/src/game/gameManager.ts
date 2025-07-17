@@ -104,7 +104,6 @@ export class GameManager {
         if(mode == "local") {
             const room = new Room(mode, player);
         }
-        
     }
 }
 

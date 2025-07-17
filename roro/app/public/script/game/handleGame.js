@@ -2,6 +2,10 @@
 //import * as GUI from 'babylonjs-gui';
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
+const player1ScoreDisplay = document.getElementById('player1ScoreDisplay');
+const player2ScoreDisplay = document.getElementById('player2ScoreDisplay');
+let player1ScoreValue = document.getElementById('player1ScoreValue');
+let player2ScoreValue = document.getElementById('player2ScoreValue');
 import { socket } from "../../game.js";
 export class GameManager {
     constructor(scene, pingPongBall, floor) {
@@ -10,9 +14,6 @@ export class GameManager {
         this.scene = scene;
         this.ball = pingPongBall;
         this.floor = floor;
-        this.scoreText = new BABYLON.GUI.TextBlock();
-        this.scoreText.text = "Score: 0";
-        // Limiter la vitesse de la balle
         scene.onBeforeRenderObservable.add(() => {
             const maxSpeed = 13;
             if (this.ball.physicsImpostor) {
@@ -23,7 +24,6 @@ export class GameManager {
                 }
             }
         });
-        this._createGUI();
         this._initBallSuperviseur();
     }
     _initBallSuperviseur() {
@@ -50,22 +50,9 @@ export class GameManager {
         this.ball.physicsImpostor.setLinearVelocity(BABYLON.Vector3.Zero());
         this.ball.physicsImpostor.setAngularVelocity(BABYLON.Vector3.Zero());
         this._updateUI();
-        //this._resetBall(winner);
-    }
-    _createGUI() {
-        const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-        this.scoreText = new BABYLON.GUI.TextBlock();
-        this.scoreText.text = "Joueur 1: 0 | Joueur 2: 0";
-        this.scoreText.color = "white";
-        this.scoreText.fontFamily = "Verdana";
-        this.scoreText.fontSize = 24;
-        this.scoreText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        this.scoreText.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-        this.scoreText.left = "10px";
-        this.scoreText.top = "10px";
-        advancedTexture.addControl(this.scoreText);
     }
     _updateUI() {
-        this.scoreText.text = `Joueur 1: ${this.player1Score} | Joueur 2: ${this.player2Score}`;
+        player2ScoreValue.textContent = this.player2Score.toString();
+        player1ScoreValue.textContent = this.player1Score.toString();
     }
 }
