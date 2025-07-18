@@ -19,7 +19,6 @@ export async function navbar(request: FastifyRequest, reply: FastifyReply) {
     }
 }
 
-
 export function getRoot(fastify: FastifyInstance) {
     return async function (request: FastifyRequest, reply: FastifyReply) {
         return reply.sendFile("index.html");

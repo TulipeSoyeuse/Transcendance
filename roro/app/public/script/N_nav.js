@@ -1,3 +1,6 @@
+function am_i_on_the_page(page) {
+    return window.location.href.substring(window.location.href.indexOf('#') + 1) === page;
+}
 export async function navbar() {
     var nav = await fetch('/script/nav').then(async (response) => await response.text());
     var user = await fetch('/api/islogged').then(async (response) => await response.json());
@@ -26,7 +29,7 @@ export async function navbar() {
                     }
                 }
                 // ---- account button listener ----
-                else if (target.id === "account") {
+                else if (target.id === "account" && am_i_on_the_page("account")) {
                     try {
                         const response = await fetch("/account", {
                             method: "GET",
@@ -38,11 +41,48 @@ export async function navbar() {
                             old.outerHTML = main;
                         else
                             console.error("main not found");
-                        history.pushState(null, "", window.location.href + "#account"); // TODO: need more thought
+                        history.pushState(null, "", window.location.href.substring(0, window.location.href.indexOf('#')) + "#account"); // TODO: need more thought
                     }
                     catch (err) {
                         console.error("Logout failed", err);
                     }
+                }
+                // ---- Home button listener ----
+                else if (target.id === "Home" && am_i_on_the_page("Home")) {
+                    try {
+                        const response = await fetch("/", {
+                            method: "GET",
+                            credentials: "include"
+                        });
+                        const main = await response.text();
+                        let old = document.getElementById("main_content");
+                        if (old)
+                            old.outerHTML = main;
+                        else
+                            console.error("main not found");
+                        history.pushState(null, "", window.location.href.substring(0, window.location.href.indexOf('#')) + "#home"); // TODO: need more thought
+                    }
+                    catch (err) {
+                        console.error("Logout failed", err);
+                    }
+                }
+                // ---- Dashboard button listener ----
+                else if (target.id === "Dashboard" && am_i_on_the_page("Dashboard")) {
+                    // try {
+                    //     const response = await fetch("/account", {
+                    //         method: "GET",
+                    //         credentials: "include"
+                    //     });
+                    //     const main = await response.text()
+                    //     let old = document.getElementById("main_content")
+                    //     if (old)
+                    //         old.outerHTML = main;
+                    //     else
+                    //         console.error("main not found")
+                    //     history.pushState(null, "", window.location.href.substring(0, window.location.href.indexOf('#')) + "#account") // TODO: need more thought
+                    // } catch (err) {
+                    //     console.error("Logout failed", err);
+                    // }
                 }
             }
         });
