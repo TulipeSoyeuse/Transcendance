@@ -1,9 +1,11 @@
 function am_i_on_the_page(page) {
-    return window.location.href.substring(window.location.href.indexOf('#') + 1) === page;
+    console.log(window.location.href.substring(window.location.href.indexOf('#') + 1));
+    return (window.location.href.substring(window.location.href.indexOf('#') + 1) === page);
 }
 export async function navbar() {
-    var nav = await fetch('/script/nav').then(async (response) => await response.text());
-    var user = await fetch('/api/islogged').then(async (response) => await response.json());
+    // create navbar, add event listener on nav, all nav button must be registered here
+    let nav = await fetch('/script/nav').then(async (response) => await response.text());
+    const user = await fetch('/api/islogged').then(async (response) => await response.json());
     var target = document.body;
     if (user && user.autenticated) {
         nav = nav.replace('PLACEHOLDER_USERNAME', user.username);
@@ -11,6 +13,7 @@ export async function navbar() {
     if (target) {
         target.querySelector('nav')?.remove();
         target.insertAdjacentHTML("afterbegin", nav);
+        const parser = new DOMParser();
         target.firstChild?.addEventListener("click", async function (e) {
             const target = e.target;
             if (target) {
@@ -29,16 +32,19 @@ export async function navbar() {
                     }
                 }
                 // ---- account button listener ----
-                else if (target.id === "account" && am_i_on_the_page("account")) {
+                else if (target.id === "account" && !am_i_on_the_page("account")) {
                     try {
+                        console.log("account");
                         const response = await fetch("/account", {
                             method: "GET",
                             credentials: "include"
                         });
                         const main = await response.text();
                         let old = document.getElementById("main_content");
-                        if (old)
+                        if (old) {
+                            old.innerHTML = "";
                             old.outerHTML = main;
+                        }
                         else
                             console.error("main not found");
                         history.pushState(null, "", window.location.href.substring(0, window.location.href.indexOf('#')) + "#account"); // TODO: need more thought
@@ -48,16 +54,17 @@ export async function navbar() {
                     }
                 }
                 // ---- Home button listener ----
-                else if (target.id === "Home" && am_i_on_the_page("Home")) {
+                else if (target.id === "Home" && !am_i_on_the_page("home")) {
                     try {
                         const response = await fetch("/", {
                             method: "GET",
                             credentials: "include"
                         });
-                        const main = await response.text();
+                        const main = parser.parseFromString(await response.text(), 'text/html');
                         let old = document.getElementById("main_content");
-                        if (old)
-                            old.outerHTML = main;
+                        if (old) {
+                            old.outerHTML = main.getElementById('main_content').outerHTML;
+                        }
                         else
                             console.error("main not found");
                         history.pushState(null, "", window.location.href.substring(0, window.location.href.indexOf('#')) + "#home"); // TODO: need more thought
@@ -67,7 +74,7 @@ export async function navbar() {
                     }
                 }
                 // ---- Dashboard button listener ----
-                else if (target.id === "Dashboard" && am_i_on_the_page("Dashboard")) {
+                else if (target.id === "Dashboard" && !am_i_on_the_page("Dashboard")) {
                     // try {
                     //     const response = await fetch("/account", {
                     //         method: "GET",
@@ -76,7 +83,10 @@ export async function navbar() {
                     //     const main = await response.text()
                     //     let old = document.getElementById("main_content")
                     //     if (old)
+                    //   	{
+                    //		   old.innerHTML = ""
                     //         old.outerHTML = main;
+                    //   	}
                     //     else
                     //         console.error("main not found")
                     //     history.pushState(null, "", window.location.href.substring(0, window.location.href.indexOf('#')) + "#account") // TODO: need more thought

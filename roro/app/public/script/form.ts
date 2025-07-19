@@ -54,7 +54,6 @@ async function register(event: SubmitEvent): Promise<[boolean, string | null]> {
 }
 
 async function login(event: SubmitEvent): Promise<[boolean, string | null]> {
-    console.log("ping")
     const form = event.target;
     if (!form) {
         console.error("error: event target is missing")
@@ -85,7 +84,6 @@ async function login(event: SubmitEvent): Promise<[boolean, string | null]> {
 }
 
 export async function initForm() {
-    console.log("init form: ", document.getElementById('LoginForm'), document.getElementById('RegisterForm'))
     const loginform = document.getElementById('LoginForm') as HTMLElement;
     const registerform = document.getElementById('RegisterForm') as HTMLElement;
     function openLogin() {
@@ -138,9 +136,8 @@ export async function initForm() {
     });
 
     // ------------  login  ----------------
-    console.log("registering event login")
     loginform?.addEventListener('submit', async function (event) {
-        console.log("event login")
+
         event.preventDefault();
         const res = await login(event)
         if (res[0]) {
