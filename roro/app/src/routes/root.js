@@ -1,4 +1,4 @@
-import { getRoot, getGame, getAccount, navbar, getChat } from "./controllers/root.controller.js";
+import { getRoot, getGame, getAccount, navbar, getChat, getDashboard } from "./controllers/root.controller.js";
 import { check_user, is_logged } from "./controllers/api.controller.js";
 import { register, login, logout } from "./controllers/auth.controller.js";
 import { getConversation, getMessages, getBlocked } from "./controllers/chat.controller.js";
@@ -22,6 +22,8 @@ async function routes(fastify, options) {
     fastify.get("/account", getAccount(fastify));
     // chat.html
     fastify.get("/chat", getChat());
+    //dashboard.html
+    fastify.get("/dashboard", getDashboard());
 }
 async function auth(fastify, options) {
     //authentification api route, now return json
