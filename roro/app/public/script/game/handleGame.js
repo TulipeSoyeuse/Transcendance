@@ -51,6 +51,7 @@ export class GameManager {
         this.ball.physicsImpostor.setAngularVelocity(BABYLON.Vector3.Zero());
         this._updateUI();
     }
+    // TODO : remplacer player1 et player 2 par le nom de l'utilisateur
     _updateUI() {
         player2ScoreValue.textContent = this.player2Score.toString();
         player1ScoreValue.textContent = this.player1Score.toString();

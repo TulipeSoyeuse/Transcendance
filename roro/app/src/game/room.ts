@@ -7,12 +7,16 @@ export class Room {
     players: Player[] = [];
     gameScene! : GameScene;
     gameLogic! : GameLogic; 
-    public constructor (mode: string, player1: Player) {
+    isActive: boolean = true;
+    winner! : Player
+    public constructor (mode: string, player1: Player, player2: Player) {
         this.players.push(player1);
+        this.players.push(player2);
         GameScene.create().then((scene) => {
             this.gameScene = scene;
             this.gameLogic = new GameLogic(this.gameScene, this.players[0], this.players[1]);
             this.keyPressedListener();
+            this.checkMatchStatus();
             this.emitToPlayers(player1);
         }).catch((error) => {
             console.error("Failed to initialize GameScene", error);
@@ -25,12 +29,11 @@ export class Room {
             console.error("Le joueur n'a pas de socketId");
             return;
         }
+        //TODO : handle local/remote
         setInterval(() => {
         const sceneState = this.gameScene.getSceneState();
         player1.socket.emit("sceneUpdate", sceneState);
         }, 1000 / 30);
-
-        
     }
 
 
@@ -39,18 +42,46 @@ export class Room {
     private keyPressedListener() {
         if (!this.players[0].socket.connected)
             console.log("Can't establish websocket connection");
-    
+        //TODO: handle local/remote
         this.players[0].socket.on("keyPressed", (data: { key: string, position: { x: number, y: number, z: number } }) => {
             this.gameScene.moovePaddle("players1", data.key, this.players[0]);
         });
     }
+
+
+    private checkMatchStatus(): void {
+        const interval = setInterval(() => {
+            if (!this.isActive) {
+                clearInterval(interval);
+                return;
+            }
+    
+            if (this.gameLogic.player1Score >= 7 || this.gameLogic.player2Score >= 7) {
+                this.endMatch();
+                clearInterval(interval);
+            }
+    
+        }, 100); // toutes les 100ms
+    }
+
+
+    private endMatch() : void {
+        if(this.gameLogic.player1Score >= 7) {
+            this.winner = this.players[0];
+        }
+        else
+            this.winner = this.players[1];
+        this.isActive = false;
+        //TODO : handle local/remote
+        this.players[0].socket.emit("match_ended", { message: "stop match", winner: this.winner.username });
+    }
     
 
+    isMatchActive() : boolean {
+        return this.isActive;
+    }
+
 }
-
-
-
-
 
 /*
 deux type de room: une room locale et une remote, la locale n'attend pas qu'un autre joueur se connecte, 

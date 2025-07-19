@@ -1,3 +1,4 @@
+declare const confetti: (options: any) => void;
 
 
 const localButton = document.getElementById('localButton') as HTMLButtonElement;
@@ -27,6 +28,48 @@ socket.on("pong_check", (start) => {
   console.log("RTT (aller-retour) :", rtt + " ms");
 });
 
+
+socket.on("match_ended", (data: { message: string, winner: string }) => {
+  // Affiche un message avec le gagnant en gros
+  const container = document.getElementById("renderCanvas")?.parentElement;
+  if (!container) return;
+
+  const winnerText = document.createElement("h1");
+  winnerText.textContent = `Le gagnant est : ${data.winner}`;
+  winnerText.style.fontSize = "3rem";
+  winnerText.style.color = "blue";
+  winnerText.style.textAlign = "center";
+  winnerText.style.marginTop = "1rem";
+
+  // Affiche le bouton pour revenir à l'accueil
+  const button = document.createElement("button");
+  button.textContent = "Retour à l'accueil";
+  button.className = "mt-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition";
+  button.onclick = () => {
+    window.location.href = "/";
+  };
+
+  container.appendChild(winnerText);
+  container.appendChild(button);
+  
+  const duration = 4000;
+  const animationEnd = Date.now() + duration;
+
+const interval = setInterval(() => {
+  confetti({
+    particleCount: 50,
+    spread: 100,
+    origin: { y: 0.6 }
+  });
+
+  if (Date.now() > animationEnd) {
+    clearInterval(interval);
+  }
+}, 100);
+});
+
+
+
 // Mesure toutes les 2 secondes
 setInterval(measureLatency, 2000);
 
@@ -48,7 +91,6 @@ function resizeCanvas(): void {
 
 
 // TODO : refaire le systeme de connection websocket, choix du mode et affichage du canvas/score
-
 function startGameUI() {
   gameModeSelection.style.display = 'none';
   renderCanvas.style.display = 'block';
@@ -65,7 +107,6 @@ localButton.addEventListener('click', () => {
   renderCanvas.style.display = 'block';
   player1ScoreDisplay.classList.remove('hidden');
   player2ScoreDisplay.classList.remove('hidden');
-  //startGameUI();
   console.log('Mode local sélectionné');
   const res = fetch('/api/handle-game', {
     method: 'POST',
@@ -82,7 +123,6 @@ remoteButton.addEventListener('click', () => {
   renderCanvas.style.display = 'block';
   player1ScoreDisplay.classList.remove('hidden');
   player2ScoreDisplay.classList.remove('hidden');
-  //startGameUI();
   console.log('Mode remote sélectionné');
   const res = fetch('/api/handle-game', {
     method: 'POST',

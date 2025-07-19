@@ -64,7 +64,6 @@ export class GameLogic {
     _initBallSuperviseur() {
         //update de la balle envoye par le client
         this.player1.socket.on("ballPositionUpdate", (pos) => {
-            console.log("j'update");
             this.ball.position.set(pos.x, pos.y, pos.z);
         });
         // point + service 

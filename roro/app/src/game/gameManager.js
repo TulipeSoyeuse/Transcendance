@@ -89,7 +89,79 @@ export class GameManager {
             return;
         }
         if (mode == "local") {
-            const room = new Room(mode, player);
+            this.createGuest((guest) => {
+                if (!guest) {
+                    console.log("Pas de guest trouvé.");
+                    return;
+                }
+                console.log("Guest récupéré :", guest.username);
+                const room = new Room(mode, player, guest);
+                this.rooms.push(room);
+            });
+        }
+    }
+    createGuest(callback) {
+        if (!this.fastify) {
+            console.error("Fastify non initialisé.");
+            callback(null);
+            return;
+        }
+        this.fastify.database.get(`SELECT id, username FROM user WHERE username = ?`, ['guest'], (err, row) => {
+            if (err) {
+                console.error("Erreur SQL pour récupérer le guest :", err.message);
+                callback(null);
+                return;
+            }
+            if (!row) {
+                console.error("Aucun utilisateur 'guest' trouvé.");
+                callback(null);
+                return;
+            }
+            const guest = {
+                session: { userId: row.id },
+                socket: null,
+                username: row.username,
+            };
+            callback(guest);
+        });
+    }
+    checkRoomsStatus() {
+        this.rooms.forEach(room => {
+            if (room.isMatchActive() == false) {
+                this.addInfoDb(room);
+                this.rooms = this.rooms.filter(r => r !== room); // supprime le match
+            }
+        });
+    }
+    // ? enregister certaines infos des le debut ? 
+    addInfoDb(match) {
+        const player1Id = match.players[0].session.userId;
+        const player2Id = match.players[1].session.userId;
+        const player1Score = match.gameLogic.player1Score;
+        const player2Score = match.gameLogic.player2Score;
+        const winnerId = match.winner.session.userId;
+        const dateMatch = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        if (this.fastify) {
+            this.fastify.database.run(`INSERT INTO match (
+                    player_1, score_player_1,
+                    player_2, score_player_2,
+                    winner, date
+                ) VALUES (?, ?, ?, ?, ?, ?)`, [player1Id, player1Score, player2Id, player2Score, winnerId, dateMatch], function (err) {
+                if (err) {
+                    console.log({
+                        player1Id,
+                        player2Id,
+                        player1Score,
+                        player2Score,
+                        winnerId,
+                        dateMatch
+                    });
+                    console.error("Erreur insertion match:", err.message);
+                }
+                else {
+                    console.log("Match ajouté en base avec succès.");
+                }
+            });
         }
     }
 }
@@ -98,4 +170,4 @@ _GameManager_instance = { value: void 0 };
 /*
 ! SessionId : id généré par fastifysession renvoyé par le cookie et retransmis via les websocket
 ! pb : une fois le cookie expiré, sessionId est mort (comme la session)
-*/ 
+*/

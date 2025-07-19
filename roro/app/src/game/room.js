@@ -1,14 +1,17 @@
 import { GameScene } from "./scene.js";
 import { GameLogic } from "./gameLogic.js";
 export class Room {
-    constructor(mode, player1) {
+    constructor(mode, player1, player2) {
         this.id = "null";
         this.players = [];
+        this.isActive = true;
         this.players.push(player1);
+        this.players.push(player2);
         GameScene.create().then((scene) => {
             this.gameScene = scene;
             this.gameLogic = new GameLogic(this.gameScene, this.players[0], this.players[1]);
             this.keyPressedListener();
+            this.checkMatchStatus();
             this.emitToPlayers(player1);
         }).catch((error) => {
             console.error("Failed to initialize GameScene", error);
@@ -19,6 +22,7 @@ export class Room {
             console.error("Le joueur n'a pas de socketId");
             return;
         }
+        //TODO : handle local/remote
         setInterval(() => {
             const sceneState = this.gameScene.getSceneState();
             player1.socket.emit("sceneUpdate", sceneState);
@@ -29,9 +33,35 @@ export class Room {
     keyPressedListener() {
         if (!this.players[0].socket.connected)
             console.log("Can't establish websocket connection");
+        //TODO: handle local/remote
         this.players[0].socket.on("keyPressed", (data) => {
             this.gameScene.moovePaddle("players1", data.key, this.players[0]);
         });
+    }
+    checkMatchStatus() {
+        const interval = setInterval(() => {
+            if (!this.isActive) {
+                clearInterval(interval);
+                return;
+            }
+            if (this.gameLogic.player1Score >= 7 || this.gameLogic.player2Score >= 7) {
+                this.endMatch();
+                clearInterval(interval);
+            }
+        }, 100); // toutes les 100ms
+    }
+    endMatch() {
+        if (this.gameLogic.player1Score >= 7) {
+            this.winner = this.players[0];
+        }
+        else
+            this.winner = this.players[1];
+        this.isActive = false;
+        //TODO : handle local/remote
+        this.players[0].socket.emit("match_ended", { message: "stop match", winner: this.winner.username });
+    }
+    isMatchActive() {
+        return this.isActive;
     }
 }
 /*

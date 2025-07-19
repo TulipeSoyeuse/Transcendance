@@ -108,7 +108,6 @@ export class GameLogic {
     private _initBallSuperviseur(): void {
         //update de la balle envoye par le client
         this.player1.socket.on("ballPositionUpdate", (pos: { x: number; y: number; z: number }) => {
-            console.log("j'update");
             this.ball.position.set(pos.x, pos.y, pos.z);
         });
     
@@ -143,7 +142,6 @@ export class GameLogic {
             winner: winner,
             ball: this.ball.position
         };
-        
 
         this.player1.socket.emit("updateScore", scoreData);
     }

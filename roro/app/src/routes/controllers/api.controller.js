@@ -15,6 +15,9 @@ export function check_user(fastify) {
 export function handle_game(fastify) {
     return async function (request, reply) {
         const gm = GameManager.getInstance(fastify);
+        setInterval(() => {
+            gm.checkRoomsStatus();
+        }, 5000);
         const mode = request.body.mode;
         if (mode === "local" || mode === "remote") {
             gm.addRoom(mode, request.session);

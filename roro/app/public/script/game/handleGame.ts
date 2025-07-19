@@ -69,6 +69,8 @@ export class GameManager {
     }
     
 
+
+    // TODO : remplacer player1 et player 2 par le nom de l'utilisateur
     private _updateUI(): void {
         player2ScoreValue.textContent = this.player2Score.toString();
         player1ScoreValue.textContent = this.player1Score.toString();
