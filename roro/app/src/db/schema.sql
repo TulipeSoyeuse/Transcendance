@@ -42,3 +42,41 @@ CREATE TABLE IF NOT EXISTS session (
     session TEXT NOT NULL,
     expires DATETIME NOT NULL
 );
+
+-- ------------------------------
+-- Table: conversations
+-- ------------------------------
+CREATE TABLE IF NOT EXISTS conversations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user1_id INTEGER NOT NULL,
+    user2_id INTEGER NOT NULL,
+    UNIQUE(user1_id, user2_id),
+    FOREIGN KEY (user1_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY (user2_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
+-- ------------------------------
+-- Table: messages
+-- ------------------------------
+CREATE TABLE IF NOT EXISTS messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    conversation_id INTEGER NOT NULL,
+    sender_id INTEGER NOT NULL,
+    sent_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    client_offset TEXT UNIQUE,
+    content TEXT,
+    FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+    FOREIGN KEY (sender_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
+-- ------------------------------
+-- Table: blocked users
+-- ------------------------------
+CREATE TABLE IF NOT EXISTS blocks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    blocker_id INTEGER NOT NULL,
+    blocked_id INTEGER NOT NULL,
+    UNIQUE(blocker_id, blocked_id),
+    FOREIGN KEY (blocker_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY (blocked_id) REFERENCES user(id) ON DELETE CASCADE
+);

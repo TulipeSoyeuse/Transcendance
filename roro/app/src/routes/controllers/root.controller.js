@@ -51,3 +51,10 @@ export function getGame(fastify) {
         return reply.sendFile("pong.html");
     };
 }
+export function getChat() {
+    return async (request, reply) => {
+        if (!request.session.authenticated)
+            return reply.redirect("/");
+        return reply.sendFile("chat/chat.html");
+    };
+}
