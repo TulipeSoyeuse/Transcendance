@@ -1,4 +1,5 @@
 import ChatClient from "./chat/ChatClient.js";
+import display_dashboard from "./dashboards/dashboards.js";
 function am_i_on_the_page(page) {
     console.log(window.location.href.substring(window.location.href.indexOf('#') + 1));
     return (window.location.href.substring(window.location.href.indexOf('#') + 1) === page);
@@ -75,25 +76,26 @@ export async function navbar() {
                     }
                 }
                 // ---- Dashboard button listener ----
-                else if (target.id === "Dashboard" && !am_i_on_the_page("Dashboard")) {
-                    // try {
-                    //     const response = await fetch("/account", {
-                    //         method: "GET",
-                    //         credentials: "include"
-                    //     });
-                    //     const main = await response.text()
-                    //     let old = document.getElementById("main_content")
-                    //     if (old)
-                    //   	{
-                    //		   old.innerHTML = ""
-                    //         old.outerHTML = main;
-                    //   	}
-                    //     else
-                    //         console.error("main not found")
-                    //     history.pushState(null, "", window.location.href.substring(0, window.location.href.indexOf('#')) + "#account") // TODO: need more thought
-                    // } catch (err) {
-                    //     console.error("Logout failed", err);
-                    // }
+                else if (target.id === "dashboard" && !am_i_on_the_page("Dashboard")) {
+                    try {
+                        const response = await fetch("/dashboard", {
+                            method: "GET",
+                            credentials: "include"
+                        });
+                        const main = await response.text();
+                        let old = document.getElementById("main_content");
+                        if (old) {
+                            old.innerHTML = "";
+                            old.outerHTML = main;
+                            display_dashboard();
+                        }
+                        else
+                            console.error("main not found");
+                        history.pushState(null, "", window.location.href.substring(0, window.location.href.indexOf('#')) + "#account"); // TODO: need more thought
+                    }
+                    catch (err) {
+                        console.error("Logout failed", err);
+                    }
                 }
                 else if (target.id === "chat" && !am_i_on_the_page("chat")) {
                     try {

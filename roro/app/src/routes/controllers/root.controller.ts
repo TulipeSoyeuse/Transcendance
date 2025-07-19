@@ -72,3 +72,10 @@ export function getChat() {
     return reply.sendFile("chat/chat.html");
     };
 }
+
+export function getDashboard() {
+    return async (request: FastifyRequest, reply: FastifyReply) => {
+      if (!request.session.authenticated) return reply.redirect("/");
+    return reply.sendFile("dashboards/user-dashboard.html");
+    };
+}

@@ -58,3 +58,10 @@ export function getChat() {
         return reply.sendFile("chat/chat.html");
     };
 }
+export function getDashboard() {
+    return async (request, reply) => {
+        if (!request.session.authenticated)
+            return reply.redirect("/");
+        return reply.sendFile("dashboards/user-dashboard.html");
+    };
+}
