@@ -1,5 +1,4 @@
 function am_i_on_the_page(page) {
-    console.log(window.location.href.substring(window.location.href.indexOf('#') + 1));
     return (window.location.href.substring(window.location.href.indexOf('#') + 1) === page);
 }
 export async function navbar() {
@@ -34,7 +33,6 @@ export async function navbar() {
                 // ---- account button listener ----
                 else if (target.id === "account" && !am_i_on_the_page("account")) {
                     try {
-                        console.log("account");
                         const response = await fetch("/account", {
                             method: "GET",
                             credentials: "include"
