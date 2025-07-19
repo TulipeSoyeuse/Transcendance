@@ -1,3 +1,5 @@
+import ChatClient from "./chat/ChatClient.js";
+
 function am_i_on_the_page(page: string): boolean {
 	console.log(window.location.href.substring(window.location.href.indexOf('#') + 1))
 	return (window.location.href.substring(window.location.href.indexOf('#') + 1) === page)
@@ -92,6 +94,28 @@ export async function navbar() {
 					// } catch (err) {
 					//     console.error("Logout failed", err);
 					// }
+				}
+				else if (target.id === "chat" && !am_i_on_the_page("chat")) {
+					try {
+						console.log("chat")
+						const response = await fetch("/chat", {
+							method: "GET",
+							credentials: "include"
+						});
+						const main = await response.text()
+						let old = document.getElementById("main_content")
+						if (old) {
+							old.innerHTML = ""
+							old.outerHTML = main;
+							const chatClient = new ChatClient();
+							if (!chatClient) console.error("Failed to initialize chatClient.");
+						}
+						else
+							console.error("main not found")
+						history.pushState(null, "", window.location.href.substring(0, window.location.href.indexOf('#')) + "#chat") // TODO: need more thought
+					} catch (err) {
+						console.error("Logout failed", err);
+					}
 				}
 			}
 		});
