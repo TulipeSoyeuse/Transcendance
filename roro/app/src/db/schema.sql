@@ -3,7 +3,7 @@ PRAGMA foreign_keys = ON;
 -- ------------------------------
 -- Table: user
 -- ------------------------------
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS user (
     id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
     username TEXT NOT NULL,
     email TEXT,

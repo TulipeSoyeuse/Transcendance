@@ -20,6 +20,7 @@ interface Player {
     session: FastifySessionObject | undefined;
     socket: any;
     username: string | undefined;
+    online: boolean;
 }
 
 declare module 'canvas-confetti' {

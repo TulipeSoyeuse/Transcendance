@@ -29,88 +29,111 @@ export class GameManager {
         return this.#instance;
     };
 
+    //TODO : la connection se deconnecte une fois que on sort de la page game.ts (trouver une solution pour ce souci de connexion socket + fastifysession)
     private configureSocketIO(server: FastifyInstance): void {
         server.ready().then(() => {
             server.io.on("connection", (socket) => {
                 socket.on("ping_check", (start: any) => {
                     socket.emit("pong_check", start); 
-                  });
-                const cookies = cookie.parse(socket.handshake.headers.cookie);
+                });
+    
+                const cookies = cookie.parse(socket.handshake.headers.cookie || "");
                 const sessionId = cookies.sessionId;
-                if(sessionId) {
-                    const sessionKey = sessionId.split('.')[0];
-
-                    // ? acceder a sessionstore et get ma session grace a ce sessionID serzit bcp plus simple
-                    console.log("Session ID = ", sessionKey);
-                    const player: Player = {
-                        session: undefined,  
-                        socket: socket,              
-                        username: undefined,
-                      };
-                      
-                      this.mapPlayer.set(sessionKey, player);
-
-                }
-                else {
-                    console.log("Pas de session id. Fastify/session pas instancié");
+                if (sessionId) {
+                    const sessionKey = sessionId.split('.')[0];  
+                    // Vérifie si le joueur est déjà présent dans ma map           
+                    let player = this.mapPlayer.get(sessionKey);
+                    if (!player) {
+                        player = {
+                            session: undefined,
+                            socket: socket,
+                            username: undefined,
+                            online: true,
+                        };
+                        this.mapPlayer.set(sessionKey, player);
+                    } else {
+                        player.socket = socket;
+                        player.online = true;
+                    }
+    
+                    console.log(`Player with session ${sessionKey} is now online.`);
+    
+                    // Gestion de la déconnexion
+                    socket.on("disconnect", (reason: any) => {
+                        console.log(`Player with session ${sessionKey} disconnected: ${reason}`);
+                        const p = this.mapPlayer.get(sessionKey);
+                        if (p) {
+                            p.online = false;
+                            p.socket = null;
+                        }
+                    });
+                } else {
+                    console.log("Pas de sessionId dans les cookies, impossible d'identifier le joueur.");
                 }
             });
         });
     }
+    
 
-
-    public socketPlayerMatch(userSession: FastifySessionObject) : Player | undefined {
+    public async socketPlayerMatch(userSession: FastifySessionObject): Promise<Player | undefined> {
         const value = this.mapPlayer.get(userSession.sessionId);
         if (!value) {
             console.log("Pas de session");
-            return ;
+            return;
         }
+    
         value.session = userSession;
         const userId = userSession.userId;
     
-        if (this.fastify) {
-            this.fastify.database.get(
+        if (!this.fastify) return value;
+    
+        const username: string = await new Promise((resolve, reject) => {
+            this.fastify!.database.get(
                 'SELECT username FROM user WHERE id = ?',
                 [userId],
                 (err: Error | null, row: any) => {
-                    if (err) {
-                        console.error('Erreur lors de la requête SQL :', err);
-                        return;
-                    }
-    
-                    if (!row) {
-                        console.log('Aucun utilisateur trouvé');
-                        return;
-                    }
-    
-                    console.log('Username :', row.username);
-    
-                    if (value) {
-                        value.username = row.username;
+                    if (err || !row) {
+                        reject(err || new Error("No row"));
+                    } else {
+                        resolve(row.username);
                     }
                 }
             );
-        }
+        });
+    
+        value.username = username;
+        console.log("Username :", username);
         console.log("profile player completed!");
         return value;
     }
+    
 
-    public addRoom(mode: string, userSession: FastifySessionObject) {
-        const player = this.socketPlayerMatch(userSession);
-        if(player === undefined) {
+    // DEBUG
+    public listConnectedPlayers(): void {
+        console.log("Liste des joueurs connectés :");
+        this.mapPlayer.forEach((player, sessionKey) => {
+            console.log(`SessionKey: ${sessionKey}, username: ${player.username}, socket id: ${player.socket.id}`);
+        });
+    }
+
+    public async addRoom(mode: string, userSession: FastifySessionObject) {
+        const player = await this.socketPlayerMatch(userSession);
+        if (!player) {
             console.error("Cannot find session with sessionID");
-            return ;
+            return;
         }
-        if(mode == "local") {
+    
+        if (mode === "local") {
             this.createGuest((guest) => {
-                if (!guest) {
-                    console.log("Pas de guest trouvé.");
-                    return;
-                }
-                console.log("Guest récupéré :", guest.username);
+                if (!guest) return;
                 const room = new Room(mode, player, guest);
                 this.rooms.push(room);
             });
+        }
+    
+        if (mode === "remote") {
+            this.listConnectedPlayers(); 
+            //appel de la waitlist ici : soit mise en attente d'une connexion soit creation direct de la room 
         }
     }
 
@@ -141,6 +164,7 @@ export class GameManager {
                     session: { userId: row.id } as any,
                     socket: null,
                     username: row.username,
+                    online: false,
                 };
     
                 callback(guest);
@@ -197,7 +221,6 @@ export class GameManager {
     }
 
     // ? generer le tournoi ici ? 
-    // TODO : gerer les socket en cas de disconnect 
 }
 
 
