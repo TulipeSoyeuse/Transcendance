@@ -1,4 +1,5 @@
-export default function display_dashboard() {
+import DataHandler from "./DataHandler.js";
+function renderBarChart() {
     const ctx = document.getElementById('bar-chart');
     if (!ctx)
         console.error('Canvas bar-chart element not found'); // ! DEBUG
@@ -28,6 +29,17 @@ export default function display_dashboard() {
             }
         }
     });
+}
+export default function displayDashboard() {
+    const dataHandler = new DataHandler();
+    if (!dataHandler) {
+        console.error("DataHandler instance could not be created");
+        return;
+    }
+    renderBarChart();
+    // renderLineGraph();
+    // renderPieChart();
+    // renderStats();
 }
 /*
 1. USER DASHBOARD

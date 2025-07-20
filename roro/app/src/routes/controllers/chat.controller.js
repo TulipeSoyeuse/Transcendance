@@ -24,7 +24,7 @@ export function getMessages(fastify) {
         const { conversationId } = request.params;
         const convId = parseInt(conversationId);
         try {
-            const messages = await fastify.database.fetch_all("SELECT * FROM messages WHERE conversation_id = ? ORDER BY id ASC", [convId]);
+            const messages = await fastify.database.fetch_all(`SELECT * FROM messages WHERE conversation_id = ? ORDER BY id ASC`, [convId]);
             return (reply.send(messages));
         }
         catch (err) {

@@ -1,7 +1,9 @@
 
+import DataHandler  from "./DataHandler.js";
+
 declare const Chart: any;
 
-export default function display_dashboard() {
+function renderBarChart() {
   const ctx = document.getElementById('bar-chart') as HTMLCanvasElement | null;
 
   if (!ctx) console.error('Canvas bar-chart element not found'); // ! DEBUG
@@ -33,6 +35,19 @@ export default function display_dashboard() {
       }
   });
 }
+
+export default function displayDashboard() {
+  const dataHandler = new DataHandler();
+  if (!dataHandler) {
+    console.error("DataHandler instance could not be created");
+    return;
+  }
+  renderBarChart();
+  // renderLineGraph();
+  // renderPieChart();
+  // renderStats();
+}
+
 /* 
 1. USER DASHBOARD
 - Total games played

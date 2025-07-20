@@ -29,7 +29,7 @@ export function getMessages(fastify: FastifyInstance) {
         const convId = parseInt(conversationId);
         try {
           const messages = await fastify.database.fetch_all(
-            "SELECT * FROM messages WHERE conversation_id = ? ORDER BY id ASC",
+            `SELECT * FROM messages WHERE conversation_id = ? ORDER BY id ASC`,
             [convId]
           );
           return (reply.send(messages));
