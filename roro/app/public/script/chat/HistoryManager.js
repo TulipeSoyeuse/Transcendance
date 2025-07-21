@@ -15,30 +15,11 @@ export default class HistoryManager {
         this.chatClient.setInputListeners();
         this.chatClient.getOptionHandler().initDropdownListeners();
     }
-    async fetchConversationId(target) {
+    async fetchMessageHistory(targetId) {
         try {
-            const res = await fetch(`/api/chat/conversation?target=${target}`);
+            const res = await fetch(`/api/chat/messages?target=${targetId}`);
             const data = await res.json();
-            if (res.status === 404) {
-                console.log(data.message);
-                return (null);
-            }
-            else if (res.status === 500) {
-                console.error(data.message);
-                return (null);
-            }
-            return (data.id);
-        }
-        catch (err) {
-            console.error("Failed to fetch or parse JSON:", err);
-            return (null);
-        }
-    }
-    async fetchMessageHistory(conversationId) {
-        try {
-            const res = await fetch(`/api/chat/${conversationId}/messages`);
-            const data = await res.json();
-            if (res.status === 500) {
+            if (res.status === 500 || res.status === 404) {
                 console.error(data.message);
                 return (null);
             }
@@ -49,8 +30,8 @@ export default class HistoryManager {
             return (null);
         }
     }
-    async displayMessageHistory(targetId, conversationId) {
-        const messages = await this.fetchMessageHistory(conversationId);
+    async displayMessageHistory(targetId) {
+        const messages = await this.fetchMessageHistory(targetId);
         if (messages) {
             for (const entry of messages) {
                 const message = {
@@ -63,7 +44,7 @@ export default class HistoryManager {
             }
         }
         else
-            console.error("Failed to fetch messages for conversation ID:", conversationId);
+            console.error("Failed to fetch messages for conversation with target: ", targetId);
     }
     async openChat(user) {
         if (!document.getElementById("chat-window"))
@@ -74,10 +55,7 @@ export default class HistoryManager {
             return;
         chatBox.innerHTML = "";
         recipientName.textContent = user.username;
-        const conversationId = await this.fetchConversationId(user.userId);
-        if (!conversationId)
-            return;
-        this.displayMessageHistory(user.userId, conversationId); // ! FIX user self !!!!!!!!!!!!!!!!!
+        this.displayMessageHistory(user.userId); // ! FIX user self !!!!!!!!!!!!!!!!!
         this.chatClient.getOptionHandler().getBlockManager().checkBlockedTarget();
     }
 }

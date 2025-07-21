@@ -1,7 +1,7 @@
 import { getRoot, getGame, getAccount, navbar, getChat, getDashboard } from "./controllers/root.controller.js";
 import { check_user, is_logged } from "./controllers/api.controller.js";
 import { register, login, logout } from "./controllers/auth.controller.js";
-import { getConversation, getMessages, getBlocked } from "./controllers/chat.controller.js";
+import { getMessages, getBlocked } from "./controllers/chat.controller.js";
 import { getGameHistory } from "./controllers/dashboard.controller.js";
 /**
  * A plugin that provide encapsulated routes
@@ -37,8 +37,7 @@ async function api(fastify, options) {
     fastify.post("/api/check-username", check_user(fastify));
     fastify.get("/api/islogged", is_logged(fastify));
     // api/chat
-    fastify.get("/api/chat/conversation", getConversation(fastify));
-    fastify.get("/api/chat/:conversationId/messages", getMessages(fastify));
+    fastify.get("/api/chat/messages", getMessages(fastify));
     fastify.get("/api/chat/blocked", getBlocked(fastify));
     // api/dashboard
     fastify.get("/api/dashboard/gamehistory", getGameHistory(fastify));

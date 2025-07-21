@@ -50,7 +50,7 @@ export default class ChatClient {
                 }
                 this.socket.auth.serverOffset = serverOffset;
                 if (isSent)
-                    this.userManager.updateConvPreview(targetId, otherUsername); // ? OR USE OTHER USER ID ??
+                    this.userManager.updateConvPreview(targetId, otherUsername); // ! OR USE OTHER USER ID ??
                 else
                     this.userManager.updateConvPreview(senderId, otherUsername);
                 const message = {

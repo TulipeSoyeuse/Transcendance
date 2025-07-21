@@ -36,8 +36,6 @@ export default class ChatUI {
     const allMessages = document.getElementById("all-messages");
     if (!allMessages) return (null);
     const displayed = allMessages.querySelector(`[data-user-id="${targetId}"]`);
-    console.log("DISPLAYED = ", displayed); // ! DEBUG
-    console.log("userId = ", targetId); // ! DEBUG
     if (displayed) {
       displayed.classList.add("transition-all", "duration-300");
       allMessages.prepend(displayed);
