@@ -1,9 +1,9 @@
-// GET /api/chat/conversation?userA=1&userB=2
+// GET /api/chat/conversation?target=1
 export function getConversation(fastify) {
     return async function (request, reply) {
-        const { userA, userB } = request.query;
-        let user1 = parseInt(userA);
-        let user2 = parseInt(userB);
+        const { target } = request.query;
+        let user1 = request.session.userId;
+        let user2 = parseInt(target);
         [user1, user2] = [user1, user2].sort((a, b) => a - b);
         try {
             const convId = await fastify.database.fetch_one(`SELECT id FROM conversations 

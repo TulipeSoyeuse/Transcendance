@@ -20,9 +20,9 @@ export default class HistoryManager {
       this.chatClient.getOptionHandler().initDropdownListeners(); // ! ONGOING
   }
 
-  private async fetchConversationId(user1: string, user2: string): Promise<number | null> {
+  private async fetchConversationId(target: string): Promise<number | null> {
       try {
-        const res = await fetch(`/api/chat/conversation?userA=${user1}&userB=${user2}`);
+        const res = await fetch(`/api/chat/conversation?target=${target}`);
         const data = await res.json();
         if (res.status === 404) {
           console.log(data.message);
@@ -78,7 +78,7 @@ export default class HistoryManager {
       if (!chatBox || !recipientName) return;
       chatBox.innerHTML = "";
       recipientName.textContent = user.username;
-      const conversationId = await this.fetchConversationId(currentSessionId, user.userId);
+      const conversationId = await this.fetchConversationId(user.userId);
       if (!conversationId) return;
       this.displayMessageHistory(conversationId);
       this.chatClient.getOptionHandler().getBlockManager().checkBlockedTarget();

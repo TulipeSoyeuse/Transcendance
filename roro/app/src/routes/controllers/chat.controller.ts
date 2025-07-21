@@ -1,13 +1,13 @@
 import { FastifyRequest, FastifyReply, FastifyInstance } from 'fastify';
 
-// GET /api/chat/conversation?userA=1&userB=2
+// GET /api/chat/conversation?target=1
 export function getConversation(fastify: FastifyInstance) {
     return async function (request: FastifyRequest, reply: FastifyReply) {
-        const { userA, userB } = request.query as { userA: string; userB: string };
-        let user1 = parseInt(userA);
-        let user2 = parseInt(userB);
-        [user1, user2] = [user1, user2].sort((a, b) => a - b);
+        const { target } = request.query as { target: string };
         try {
+          let user1 = request.session.userId!;
+          let user2 = parseInt(target);
+          [user1, user2] = [user1, user2].sort((a, b) => a - b);
           const convId = await fastify.database.fetch_one(
             `SELECT id FROM conversations 
              WHERE (user1_id = ? AND user2_id = ?)`,
@@ -26,8 +26,8 @@ export function getConversation(fastify: FastifyInstance) {
 export function getMessages(fastify: FastifyInstance) {
     return async function (request: FastifyRequest, reply: FastifyReply) {
         const { conversationId } = request.params as { conversationId: string };
-        const convId = parseInt(conversationId);
         try {
+          const convId = parseInt(conversationId);
           const messages = await fastify.database.fetch_all(
             `SELECT * FROM messages WHERE conversation_id = ? ORDER BY id ASC`,
             [convId]
@@ -40,12 +40,11 @@ export function getMessages(fastify: FastifyInstance) {
     };
 }
 
-// GET /api/chat/blocked?blocker=1
+// GET /api/chat/blocked
 export function getBlocked(fastify: FastifyInstance) {
   return async function (request: FastifyRequest, reply: FastifyReply) {
-    const { blocker } = request.query as { blocker: string };
-    const blockerId = parseInt(blocker);
     try {
+      const blockerId = request.session.userId;
       const blockedUsers = await fastify.database.fetch_all(
         `SELECT blocked_id FROM blocks WHERE blocker_id = ?`,
         [blockerId]
