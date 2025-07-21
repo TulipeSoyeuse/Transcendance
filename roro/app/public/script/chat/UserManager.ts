@@ -85,10 +85,9 @@ export default class UserManager {
             self: false
           });
         }
-        // console.warn("targetUsers =", targetUsers); // ! DEBUG
       }
     } // ! ADD UPDATE CONVO PREVIEW
-        
+
 
   getTargetUsername(otherUserId: string, senderUsername: string, isSent: boolean): string { // ! WHY IS ID A NUMBER ?
     if (isSent) {
@@ -101,13 +100,12 @@ export default class UserManager {
     return ("Unknown User");
   }
 
-   async updateConvPreview(userId: string, targetName: string) {
+   async updateConvPreview(userId: string, targetName: string) { // !!!!!!! PASS TARGET ID HERE - NOT SENDER ID
       const res = await this.chatUI.updateConvPreviewUI(userId, targetName);
       if (!res) return;
       const { card, allMessages } = res;
       card.addEventListener("click", () => {
           this.targetId = userId;
-          // console.log("Target set to:", this.targetId); // ! DEBUG
           this.convId = this.targetToConvId.get(this.targetId)!;
           this.historyManager.openChat({ userId: userId, username: targetName, self: false });
         });

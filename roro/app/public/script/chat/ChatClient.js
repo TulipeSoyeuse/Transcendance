@@ -49,7 +49,10 @@ export default class ChatClient {
                     return;
                 }
                 this.socket.auth.serverOffset = serverOffset;
-                this.userManager.updateConvPreview(targetId, otherUsername);
+                if (isSent)
+                    this.userManager.updateConvPreview(targetId, otherUsername); // ? OR USE OTHER USER ID ??
+                else
+                    this.userManager.updateConvPreview(senderId, otherUsername);
                 const message = {
                     content: content,
                     targetId: targetId,

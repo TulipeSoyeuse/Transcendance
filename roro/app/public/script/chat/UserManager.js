@@ -77,7 +77,6 @@ export default class UserManager {
                     self: false
                 });
             }
-            // console.warn("targetUsers =", targetUsers); // ! DEBUG
         }
     } // ! ADD UPDATE CONVO PREVIEW
     getTargetUsername(otherUserId, senderUsername, isSent) {
@@ -101,7 +100,6 @@ export default class UserManager {
         const { card, allMessages } = res;
         card.addEventListener("click", () => {
             this.targetId = userId;
-            // console.log("Target set to:", this.targetId); // ! DEBUG
             this.convId = this.targetToConvId.get(this.targetId);
             this.historyManager.openChat({ userId: userId, username: targetName, self: false });
         });

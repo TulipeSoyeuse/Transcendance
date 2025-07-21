@@ -58,7 +58,7 @@ export default class ChatClient {
 
   private initSocketListeners() {
     // Listen for messages
-    this.socket.on("message", async ({ targetId, senderId, senderUsername, content, serverOffset, isSent } : // ! FIX
+    this.socket.on("message", async ({ targetId, senderId, senderUsername, content, serverOffset, isSent } :
       { targetId: string; senderId: string, senderUsername: string, content: string, serverOffset: number, isSent: boolean }) => {
         try {
           const otherUsername = this.userManager.getTargetUsername(targetId!, senderUsername, isSent);
@@ -67,7 +67,8 @@ export default class ChatClient {
             return;
           }
           this.socket.auth.serverOffset = serverOffset;
-          this.userManager.updateConvPreview(targetId, otherUsername);
+          if (isSent) this.userManager.updateConvPreview(targetId, otherUsername); // ! OR USE OTHER USER ID ??
+          else this.userManager.updateConvPreview(senderId, otherUsername);
           const message: Message = {
             content: content,
             targetId: targetId,

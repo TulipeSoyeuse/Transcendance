@@ -32,17 +32,19 @@ export default class ChatUI {
     input.value = "";
   }
 
-  async updateConvPreviewUI(userId: string, targetName: string) {
+  async updateConvPreviewUI(targetId: string, targetName: string) {
     const allMessages = document.getElementById("all-messages");
     if (!allMessages) return (null);
-    const displayed = allMessages.querySelector(`[data-user-id="${userId}"]`);
+    const displayed = allMessages.querySelector(`[data-user-id="${targetId}"]`);
+    console.log("DISPLAYED = ", displayed); // ! DEBUG
+    console.log("userId = ", targetId); // ! DEBUG
     if (displayed) {
       displayed.classList.add("transition-all", "duration-300");
       allMessages.prepend(displayed);
     } else {
       const card = await this.chatClient.getBubbleHandler().loadTemplate("/chat/conv-preview.html");
       if (!card) return (null);
-      card.setAttribute("data-user-id", userId);
+      card.setAttribute("data-user-id", targetId);
       const name = card.querySelector("p");
       if (name) name.textContent = targetName;
       return { card, allMessages };
