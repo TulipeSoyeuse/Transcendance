@@ -12,6 +12,7 @@ var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (
 var _a, _GameManager_instance;
 import { Room } from './room.js';
 import cookie from "cookie";
+import { WaitList } from "./waitList.js";
 //Singleton GameManager
 export class GameManager {
     constructor() {
@@ -26,10 +27,13 @@ export class GameManager {
             __classPrivateFieldSet(this, _a, new _a(), "f", _GameManager_instance);
             __classPrivateFieldGet(this, _a, "f", _GameManager_instance).configureSocketIO(server);
             __classPrivateFieldGet(this, _a, "f", _GameManager_instance).fastify = server;
+            __classPrivateFieldGet(this, _a, "f", _GameManager_instance).waitList = new WaitList();
         }
         return __classPrivateFieldGet(this, _a, "f", _GameManager_instance);
     }
     ;
+    // ! Session id : souci de la reconnaissance des joueurs: sessionId recupérée dans deux fenêtres avec des joueurs différents
+    //TODO : gerer lancer une partie sans etre connecté
     //TODO : la connection se deconnecte une fois que on sort de la page game.ts (trouver une solution pour ce souci de connexion socket + fastifysession)
     configureSocketIO(server) {
         server.ready().then(() => {
@@ -102,7 +106,8 @@ export class GameManager {
     listConnectedPlayers() {
         console.log("Liste des joueurs connectés :");
         this.mapPlayer.forEach((player, sessionKey) => {
-            console.log(`SessionKey: ${sessionKey}, username: ${player.username}, socket id: ${player.socket.id}`);
+            if (player.socket)
+                console.log(`SessionKey: ${sessionKey}, username: ${player.username}, socket id: ${player.socket.id}`);
         });
     }
     async addRoom(mode, userSession) {
@@ -122,6 +127,7 @@ export class GameManager {
         if (mode === "remote") {
             this.listConnectedPlayers();
             //appel de la waitlist ici : soit mise en attente d'une connexion soit creation direct de la room 
+            this.waitList.addRemote(player);
         }
     }
     createGuest(callback) {

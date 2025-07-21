@@ -5,6 +5,8 @@ import { notStrictEqual } from "assert";
 import { FastifyReply, FastifyRequest, FastifyInstance } from "fastify";
 import cookie from "cookie";
 import { Player } from "../../includes/custom.js";
+import { WaitList } from "./waitList.js";
+
 
 
 //Singleton GameManager
@@ -13,7 +15,7 @@ export class GameManager {
     private rooms: Room[] = [];
     private fastify: FastifyInstance | null = null;
     private mapPlayer: Map<string, Player> = new Map<string, Player>();
-
+    private waitList : WaitList;
 
     static #instance: GameManager
     private constructor() {
@@ -25,10 +27,14 @@ export class GameManager {
         this.#instance = new GameManager();
         this.#instance.configureSocketIO(server);
         this.#instance.fastify = server;
+        this.#instance.waitList = new WaitList();
     }
         return this.#instance;
     };
 
+
+    // ! Session id : souci de la reconnaissance des joueurs: sessionId recupérée dans deux fenêtres avec des joueurs différents
+    //TODO : gerer lancer une partie sans etre connecté
     //TODO : la connection se deconnecte une fois que on sort de la page game.ts (trouver une solution pour ce souci de connexion socket + fastifysession)
     private configureSocketIO(server: FastifyInstance): void {
         server.ready().then(() => {
@@ -112,7 +118,8 @@ export class GameManager {
     public listConnectedPlayers(): void {
         console.log("Liste des joueurs connectés :");
         this.mapPlayer.forEach((player, sessionKey) => {
-            console.log(`SessionKey: ${sessionKey}, username: ${player.username}, socket id: ${player.socket.id}`);
+            if(player.socket)
+                console.log(`SessionKey: ${sessionKey}, username: ${player.username}, socket id: ${player.socket.id}`);
         });
     }
 
@@ -134,6 +141,7 @@ export class GameManager {
         if (mode === "remote") {
             this.listConnectedPlayers(); 
             //appel de la waitlist ici : soit mise en attente d'une connexion soit creation direct de la room 
+            this.waitList.addRemote(player);
         }
     }
 
