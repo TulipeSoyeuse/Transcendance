@@ -4,6 +4,7 @@ export function getMessages(fastify) {
         const { target } = request.query;
         const userId = request.session.userId;
         const targetId = parseInt(target);
+        let [user1, user2] = [userId, targetId].sort((a, b) => a - b);
         try {
             const messages = await fastify.database.fetch_all(`SELECT 
            m.id AS message_id,
@@ -11,14 +12,10 @@ export function getMessages(fastify) {
            m.sent_at,
            m.sender_id,
            m.conversation_id
-         FROM messages m
-         JOIN conversations c ON m.conversation_id = c.id
-         WHERE (
-           (c.user1_id = ? AND c.user2_id = ?)
-           OR
-           (c.user1_id = ? AND c.user2_id = ?)
-         )
-         ORDER BY m.id ASC`, [userId, targetId, targetId, userId]);
+        FROM messages m
+        JOIN conversations c ON m.conversation_id = c.id
+        WHERE (c.user1_id = ? AND c.user2_id = ?)
+        ORDER BY m.id ASC`, [user1, user2]);
             if (!messages || messages.length === 0)
                 return reply.status(404).send({ message: "No messages found" });
             reply.send(messages);
