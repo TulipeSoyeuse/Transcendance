@@ -1,4 +1,3 @@
-import { Message } from "./chatTypes.js";
 import ChatClient from "./ChatClient.js";
 
 export default class ChatUI {
@@ -32,11 +31,6 @@ export default class ChatUI {
     this.chatClient.sendMessage(input.value);
     input.value = "";
   }
-    
-  async displayChatBubble(sessionId: string, message: Message) {
-    const targetId = this.chatClient.getUserManager().getTargetId();
-      await this.chatClient.getBubbleHandler().addChatBubble(sessionId, message, targetId!);
-    }
 
   async updateConvPreviewUI(userId: string, targetName: string) {
     const allMessages = document.getElementById("all-messages");

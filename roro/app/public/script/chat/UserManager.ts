@@ -10,12 +10,10 @@ export default class UserManager {
   private convId: number | null = null;
   private targetToConvId = new Map<string, number>();
   private socket: any;
-  private chatClient: ChatClient;
   private chatUI: ChatUI;
   private historyManager: HistoryManager;
   
   constructor(chatClient: ChatClient) {
-    this.chatClient = chatClient;
     this.socket = chatClient.getSocket();
     this.chatUI = chatClient.getChatUI();
     this.historyManager = new HistoryManager(chatClient);
@@ -32,10 +30,6 @@ export default class UserManager {
 
   initUserListeners() {
     this.socket.on("users", (newUsers: User[]) => {
-      newUsers.forEach((user) => {
-        // console.log(`User connected: ${user.username} (${user.userId})`); // ! DEBUG
-        if (user.userId === this.chatClient.getSessionId()) user.self = true;
-      });
       newUsers = newUsers.sort((a, b) => {
         if (a.self) return -1;
         if (b.self) return 1;
@@ -88,6 +82,7 @@ export default class UserManager {
           this.targetUsers.push({
             userId: conv.otherUserId.toString(),
             username: otherUsername,
+            self: false
           });
         }
         // console.warn("targetUsers =", targetUsers); // ! DEBUG

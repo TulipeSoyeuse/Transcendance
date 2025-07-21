@@ -25,10 +25,6 @@ export default class ChatUI {
         this.chatClient.sendMessage(input.value);
         input.value = "";
     }
-    async displayChatBubble(sessionId, message) {
-        const targetId = this.chatClient.getUserManager().getTargetId();
-        await this.chatClient.getBubbleHandler().addChatBubble(sessionId, message, targetId);
-    }
     async updateConvPreviewUI(userId, targetName) {
         const allMessages = document.getElementById("all-messages");
         if (!allMessages)
