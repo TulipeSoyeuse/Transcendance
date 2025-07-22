@@ -120,7 +120,6 @@ remoteButton.addEventListener('click', () => {
 });
 
 //TODO : implementer cancel_queue
-
 cancelQueueButton.addEventListener('click', () => {
   waitingForMatch.classList.add('hidden');
   gameModeSelection.style.display = 'flex'; // remettre la sélection visible

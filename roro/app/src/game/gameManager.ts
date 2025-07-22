@@ -28,15 +28,20 @@ export class GameManager {
         this.#instance.configureSocketIO(server);
         this.#instance.fastify = server;
         this.#instance.waitList = new WaitList();
-        this.#instance.waitList.on('roomCreated', ({ player1, player2 }) => {
+        //captation de l'événement de WaitList pour créer une room
+        this.#instance.waitList.on('RemoteMatchCreated', ({ player1, player2 }) => {
+            console.log("Player 1: ", player1, "player 2: ", player2);
             this.#instance.handleNewRoom(player1, player2);
-          });
+        });
+        
+        
     }
         return this.#instance;
     };
 
     private handleNewRoom(player1: Player, player2: Player) {
-        new Room("remote", player1, player2);
+        const room = new Room("remote", player1, player2);
+        this.rooms.push(room);
     }
 
 
@@ -152,7 +157,8 @@ export class GameManager {
             console.log("Pas de session");
             return;
         }
-        return value;
+            return value;
+        }
     }
     
 
@@ -271,7 +277,7 @@ export class GameManager {
 
     // ? generer le tournoi ici ? 
 }
-
+}
 
 /*
 ! SessionId : id généré par fastifysession renvoyé par le cookie et retransmis via les websocket 

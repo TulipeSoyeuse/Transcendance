@@ -28,7 +28,9 @@ export class GameManager {
             __classPrivateFieldGet(this, _a, "f", _GameManager_instance).configureSocketIO(server);
             __classPrivateFieldGet(this, _a, "f", _GameManager_instance).fastify = server;
             __classPrivateFieldGet(this, _a, "f", _GameManager_instance).waitList = new WaitList();
-            __classPrivateFieldGet(this, _a, "f", _GameManager_instance).waitList.on('roomCreated', ({ player1, player2 }) => {
+            //captation de l'événement de WaitList pour créer une room
+            __classPrivateFieldGet(this, _a, "f", _GameManager_instance).waitList.on('RemoteMatchCreated', ({ player1, player2 }) => {
+                console.log("Player 1: ", player1, "player 2: ", player2);
                 __classPrivateFieldGet(this, _a, "f", _GameManager_instance).handleNewRoom(player1, player2);
             });
         }
@@ -36,7 +38,8 @@ export class GameManager {
     }
     ;
     handleNewRoom(player1, player2) {
-        new Room("remote", player1, player2);
+        const room = new Room("remote", player1, player2);
+        this.rooms.push(room);
     }
     async getUsername(userId) {
         return new Promise((resolve, reject) => {
@@ -135,7 +138,6 @@ export class GameManager {
             }
             return value;
         }
-        // DEBUG
     }
     // DEBUG
     listConnectedPlayers() {
