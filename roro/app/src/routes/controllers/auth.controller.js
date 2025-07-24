@@ -32,6 +32,7 @@ export function login(fastify) {
             });
         }
         fastify.log.info("request login for: %s, with password %s", username, password);
+        // fetch all = execute la requete SQL et retourne les données sous forme de tableau. Si aucun utilisateur n'est trouvé le tableau est vide
         const rows = await fastify.database.fetch_all('SELECT id, password FROM user WHERE username = ?', [username]);
         if (!rows || rows.length === 0) {
             fastify.log.error('query returned empty');
@@ -40,10 +41,12 @@ export function login(fastify) {
                 "reason": "username unknown",
             });
         }
+        // comparaison du mot de passe fourni et celui stocké (hashé) dans la base données
         else {
             const user = rows[0];
             if (await bcrypt.compare(password, user.password)) {
                 fastify.log.info("user %s logged", username);
+                // stockage des infos dans la session rataché a l'instance fastify 
                 request.session.authenticated = true;
                 request.session.userId = user.id;
             }

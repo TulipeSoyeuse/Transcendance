@@ -1,6 +1,7 @@
 import { Socket, Server as SocketIOServer } from "socket.io";
 import { Database } from "../src/plugins/dbplugin";
 import "fastify";
+import { SessionStore } from "@fastify/session";
 
 declare module "fastify" {
     interface FastifyInstance {
@@ -12,6 +13,7 @@ declare module "fastify" {
     interface Session {
         authenticated?: boolean;
         userId?: number;
+        socketId?: string;
     }
 }
 
@@ -20,4 +22,15 @@ declare module "socket.io" {
         session: Session;
         username: string;
     }
+}
+interface Player {
+    session: FastifySessionObject | undefined;
+    socket: any;
+    username: string | undefined;
+    online: boolean;
+}
+
+declare module 'canvas-confetti' {
+    const confetti: (options?: any) => void;
+    export default confetti;
 }

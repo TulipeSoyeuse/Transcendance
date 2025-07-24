@@ -33,12 +33,22 @@ async function loadPaddle(scene) {
                 depth: size.z
             }, scene);
             hitbox.isVisible = false;
+            hitbox.physicsImpostor = new BABYLON.PhysicsImpostor(hitbox, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, // masse 0 = immobile, restitution = rebond
+            scene);
             // Syncro hitbot mesh raquette
             hitbox.position = container.position.clone();
             hitbox.rotationQuaternion = container.rotationQuaternion.clone();
             hitbox.scaling = container.scaling.clone();
-            hitbox.physicsImpostor = new BABYLON.PhysicsImpostor(hitbox, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
-            // Syncro les chagnement a chaque frame
+            console.log(`Mesh créé : ${container.name}`, {
+                position: container.position,
+                scaling: container.scaling,
+                rotationQuaternion: container.rotationQuaternion
+            });
+            console.log(`Hitbox créée : ${hitbox.name}`, {
+                position: hitbox.position,
+                scaling: hitbox.scaling,
+                rotationQuaternion: hitbox.rotationQuaternion
+            });
             scene.onBeforeRenderObservable.add(() => {
                 container.position.copyFrom(hitbox.position);
                 if (hitbox.rotationQuaternion) {
@@ -74,7 +84,7 @@ export async function createScene(engine, canvas) {
     if (!camera)
         console.log("Camera not load");
     camera.attachControl(canvas, true);
-    await Ammo;
+    await Ammo();
     const ammoPlugin = new BABYLON.AmmoJSPlugin(true, Ammo);
     scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), ammoPlugin);
     var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);

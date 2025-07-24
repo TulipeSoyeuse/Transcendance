@@ -1,5 +1,3 @@
-//import * as BABYLON from 'babylonjs';
-// import Ammo from 'ammo.js';
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
 export var setPhysicImpostor = function (pingPongBall, ground, groundMaterial, scene) {

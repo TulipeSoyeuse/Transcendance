@@ -1,5 +1,6 @@
 //import * as BABYLON from 'babylonjs';
 import { animateLeftPaddle, animateRightPaddle, serveBall } from "./animation.js";
+import { socket } from "../../game.js";
 // import * as BABYLON from 'babylonjs';
 
 /// <reference types="babylonjs" />
@@ -13,9 +14,11 @@ export class PlayerInput {
 
     leftStartZ: number | null;
     rightStartZ: number | null;
+    Scene: BABYLON.Scene;
 
     constructor(scene: BABYLON.Scene) {
         scene.actionManager = new BABYLON.ActionManager(scene);
+        this.Scene = scene;
         this.inputMap = {};
 
         this.leftStartZ = null;
@@ -39,6 +42,7 @@ export class PlayerInput {
         scene.onBeforeRenderObservable.add(() => {
             this._updateFromKeyboard(scene);
         });
+
     }
 
     private _updateFromKeyboard(scene: BABYLON.Scene): void {
@@ -48,47 +52,119 @@ export class PlayerInput {
         // Initialiser la position de départ une seule fois
         if (leftPaddle && this.leftStartZ === null) {
             this.leftStartZ = leftPaddle.position.z;
+            
         }
         if (rightPaddle && this.rightStartZ === null) {
             this.rightStartZ = rightPaddle.position.z;
         }
 
         if (this.inputMap["o"] && leftPaddle) {
-            leftPaddle.position.z += 0.1;
+            console.log("j'appui mdr");
+            socket.emit("keyPressed", {
+                key: "o",
+                position: {
+                    x: leftPaddle.position.x,
+                    y: leftPaddle.position.y,
+                    z: leftPaddle.position.z
+                }
+            });
         }
         if (this.inputMap["l"] && leftPaddle) {
-            leftPaddle.position.z -= 0.1;
+            socket.emit("keyPressed", {
+                key: "l",
+                position: {
+                    x: leftPaddle.position.x,
+                    y: leftPaddle.position.y,
+                    z: leftPaddle.position.z
+                }
+            });
         }
 
         if (this.inputMap["q"] && rightPaddle) {
-            rightPaddle.position.z += 0.1;
+            socket.emit("keyPressed", {
+                key: "q",
+                position: {
+                    x: rightPaddle.position.x,
+                    y: rightPaddle.position.y,
+                    z: rightPaddle.position.z
+                }
+            });
         }
         if (this.inputMap["w"] && rightPaddle) {
-            rightPaddle.position.z -= 0.1;
+            socket.emit("keyPressed", {
+                key: "w",
+                position: {
+                    x: leftPaddle.position.x,
+                    y: leftPaddle.position.y,
+                    z: leftPaddle.position.z
+                }
+            });
         }
 
         if (this.inputMap["p"] && leftPaddle && !this.leftAnimating) {
-            this.leftAnimating = true;
-            animateLeftPaddle(leftPaddle, () => {
-                this.leftAnimating = false;
-            });
+            socket.emit("keyPressed", {
+                key: "p",
+                position: {
+                    x : leftPaddle.position.x,
+                    y: leftPaddle.position.y,
+                    z: leftPaddle.position.z
+                }
+            })
+
         }
 
         if (this.inputMap["d"] && rightPaddle && !this.rightAnimating) {
-            this.rightAnimating = true;
-            animateRightPaddle(rightPaddle, () => {
-                this.rightAnimating = false;
-            });
+            socket.emit("keyPressed", {
+                key: "d",
+                position: {
+                    x : leftPaddle.position.x,
+                    y: leftPaddle.position.y,
+                    z: leftPaddle.position.z
+                }
+            })
         }
 
-        if (this.inputMap["s"] && !this.ballAnimating) {
-            const ball = scene.getMeshByName("pingPongBall") as BABYLON.Mesh;
-            if (ball) {
-                this.ballAnimating = true;
-                serveBall(ball, scene, () => {
-                    this.ballAnimating = false;
-                });
-            }
+        // if (this.inputMap["s"] && !this.ballAnimating) {
+        //     const ball = scene.getMeshByName("pingPongBall") as BABYLON.Mesh;
+        //     if (ball) {
+        //         this.ballAnimating = true;
+        //         serveBall(ball, scene, () => {
+        //             this.ballAnimating = false;
+        //         });
+        //     }
+        // }
+
+    }
+
+
+    _updateFromServer(leftPaddle: any, rightPaddle: any, ball: any) {   
+        
+        const _left = this.Scene.getMeshByName("paddleLeft_hitbox") as BABYLON.Mesh;
+        const _right = this.Scene.getMeshByName("paddleRight_hitbox") as BABYLON.Mesh;
+        const _ball = this.Scene.getMeshByName("pingPongBall") as BABYLON.Mesh;
+
+      
+        if (_left && leftPaddle?.position) {
+          _left.position.x = leftPaddle.position[0];
+          _left.position.y = leftPaddle.position[1];
+          _left.position.z = leftPaddle.position[2];
         }
+      
+        if (_right && rightPaddle?.position) {
+          _right.position.x = rightPaddle.position[0];
+          _right.position.y = rightPaddle.position[1];
+          _right.position.z = rightPaddle.position[2];
+        }
+
+
+        // ! gerer la balle coté serveur fait lagger bcp bcp trop 
+        // if (_ball && ball?.position) {
+        //     _ball.position.x = ball.position[0];
+        //     _ball.position.y = ball.position[1];
+        //     _ball.position.z = ball.position[2];
+        // }
     }
 }
+
+
+// ! https://www.gabrielgambetta.com/client-server-game-architecture.html s

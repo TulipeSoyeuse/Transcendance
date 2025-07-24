@@ -1,5 +1,4 @@
-//import * as BABYLON from 'babylonjs';
-// import Ammo from 'ammo.js';
+import Ammo from 'ammo.js';
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
 
