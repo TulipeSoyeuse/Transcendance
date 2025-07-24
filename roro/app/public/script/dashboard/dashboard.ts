@@ -64,12 +64,13 @@ export default function displayDashboard() {
 - Row 3 : line graph = win rate progression over time
 
 2. GAME STATISTICS (with filter ?)
+- services rates
+- Precision
+- Duration
 - Date & Time
 - Mode (1v1 / Tournament)
 - Opponent
 - Final score
 - Result (Win / Loss)
-- Duration
 - Goals Scored
-- Precision (Ratio of successful shots)
 */

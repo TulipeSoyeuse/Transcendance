@@ -16,7 +16,7 @@ export function getGameHistory(fastify: FastifyInstance) {
 				m.date AS created_at,
 				u1.username AS username_player1,
 				u2.username AS username_player2,
-				CASE WHEN m.player_1 = ? THEN 1 ELSE 0 END AS current_is_player1
+				CASE WHEN m.winner = ? THEN 1 ELSE 0 END AS current_is_winner
 				FROM match m
 				INNER JOIN user u1 ON m.player_1 = u1.id
 				INNER JOIN user u2 ON m.player_2 = u2.id
