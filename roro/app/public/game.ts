@@ -21,6 +21,10 @@ export function init() {
         console.log('WebSocket connected');
     });
 
+    socket.on('connect', () => {
+        console.log('WebSocket connected');
+    });
+
     function measureLatency() {
         const start = Date.now();
         socket.emit("ping_check", start);
