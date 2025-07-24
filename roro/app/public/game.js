@@ -1,5 +1,5 @@
-export const socket = io('localhost:8080');
 export function init() {
+    const socket = io('localhost:8080');
     const localButton = document.getElementById('localButton');
     const remoteButton = document.getElementById('remoteButton');
     const tournamentButton = document.getElementById('tournamentButton');

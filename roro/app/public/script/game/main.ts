@@ -8,10 +8,8 @@ import { socket } from "../../game.js";
 /// <reference types="babylonjs" />
 /// <reference types="babylonjs-gui" />
 
-
-
 function updateData(playerInput: PlayerInput) {
-    socket.on("sceneUpdate", (sceneState: any) =>  {
+    socket.on("sceneUpdate", (sceneState: any) => {
         playerInput._updateFromServer(sceneState.leftPaddle, sceneState.rightPaddle, sceneState.ball);
     });
     socket.on("animationUpdate", (sceneState: any) => {
@@ -35,15 +33,14 @@ function sendBallPositionRealtime(scene: BABYLON.Scene) {
     }, 50);
 }
 
-
 async function initScene() {
     console.log("koukou");
     // Récupérer le canvas
     const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
     // Créer le moteur Babylon
     const engine = new BABYLON.Engine(canvas, true);
-    const scene = await createScene(engine, canvas); 
-    const playerInput = new PlayerInput(scene);  
+    const scene = await createScene(engine, canvas);
+    const playerInput = new PlayerInput(scene);
 
     const ball = scene.getMeshByName("pingPongBall");
     const ground = scene.getMeshByName("ground");
@@ -52,16 +49,12 @@ async function initScene() {
     }
     const gameManager = new GameManager(scene, ball, ground);
 
-
     engine.runRenderLoop(function () {
         scene.render();
     });
-
     //updatedata
     updateData(playerInput);
-
     sendBallPositionRealtime(scene);
-
     window.addEventListener("resize", function () {
         engine.resize();
     });
@@ -69,14 +62,10 @@ async function initScene() {
 
 initScene();
 
-
-
-
-
 /**
- J'ai besoin de recup : L'orientation de la camera 
+ J'ai besoin de recup : L'orientation de la camera
  La position du mesh raquette
  la position de la balle
- le nom des players 
+ le nom des players
  le score
  */
