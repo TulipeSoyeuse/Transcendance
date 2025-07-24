@@ -1,4 +1,3 @@
-export const socket = io('localhost:8080');
 export function init() {
     const localButton = document.getElementById('localButton');
     const remoteButton = document.getElementById('remoteButton');
@@ -10,6 +9,7 @@ export function init() {
     const player2ScoreValue = document.getElementById('player2ScoreValue');
     const waitingForMatch = document.getElementById('waitingForMatch');
     const cancelQueueButton = document.getElementById('cancelQueue');
+    const socket = io('localhost:8080');
     socket.on('connect', () => {
         console.log('WebSocket connected');
     });

@@ -1,5 +1,4 @@
 declare const confetti: (options: any) => void;
-export const socket = io('localhost:8080');
 
 export function init() {
   const localButton = document.getElementById('localButton') as HTMLButtonElement;
@@ -15,6 +14,8 @@ export function init() {
 
   const waitingForMatch = document.getElementById('waitingForMatch') as HTMLDivElement;
   const cancelQueueButton = document.getElementById('cancelQueue') as HTMLButtonElement;
+
+  const socket = io('localhost:8080');
 
   socket.on('connect', () => {
     console.log('WebSocket connected');

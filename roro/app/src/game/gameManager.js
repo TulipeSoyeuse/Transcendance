@@ -129,6 +129,7 @@ export class GameManager {
         });
     }
     async socketPlayerMatch(userSession) {
+        console.log("fastify session: ", userSession);
         // recuperer mon player: deja enregistré
         if (userSession.userId) {
             const value = this.mapPlayer.get(userSession.userId);
