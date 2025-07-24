@@ -95,6 +95,7 @@ export async function navbar() {
                         console.error("Logout failed", err);
                     }
                 }
+                // ---- Chat button listener ----
                 else if (target.id === "chat" && !am_i_on_the_page("chat")) {
                     try {
                         console.log("chat");

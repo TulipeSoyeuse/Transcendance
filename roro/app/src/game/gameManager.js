@@ -16,7 +16,7 @@ import { WaitList } from "./waitList.js";
 //Singleton GameManager
 export class GameManager {
     constructor() {
-        // tableau de room 
+        // tableau de room
         this.rooms = [];
         this.fastify = null;
         this.mapPlayer = new Map();
@@ -200,7 +200,7 @@ export class GameManager {
             }
         });
     }
-    // ? enregister certaines infos des le debut ? 
+    // ? enregister certaines infos des le debut ?
     addInfoDb(match) {
         const player1Id = match.players[0].session.userId;
         const player2Id = match.players[1].session.userId;

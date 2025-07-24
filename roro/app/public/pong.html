@@ -1,52 +1,4 @@
-<!DOCTYPE html>
-<html lang="fr">
-
-<head>
-  <meta charset="UTF-8" />
-  <title>Essai Pong</title>
-  <script src="https://cdn.babylonjs.com/ammo.js"></script>
-  <script src="https://cdn.babylonjs.com/babylon.js"></script>
-  <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.js"></script>
-  <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <style>
-    body {
-      font-family: 'Press Start 2P', cursive, monospace;
-      background: linear-gradient(135deg, #1f2937 0%, #000000 100%);
-      margin: 0;
-      min-height: 100vh;
-      color: #facc15; 
-    }
-
-    #renderCanvas {
-      display: none;
-      box-sizing: border-box;
-      position: absolute;
-      top: 60%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border: 4px solid #fbbf24; /* yellow-400 */
-      border-radius: 12px;
-      box-shadow: 0 0 20px #fbbf24;
-      background-color: #000000;
-      max-width: 90vw;
-      max-height: 50vh;
-    }
-
-    /* Spinner animation */
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-  </style>
-</head>
-
-<body>
-
+<main id="main_content">
   <!-- Menu de sélection du mode de jeu -->
   <section id="gameModeSelection"
     class="flex flex-col items-center justify-center min-h-screen px-6 space-y-16 bg-gradient-to-br from-gray-900 via-black to-gray-800 text-yellow-400 select-none">
@@ -72,8 +24,7 @@
   </section>
 
   <!-- Scores (initialement cachés) -->
-  <section
-    id="scoresSection"
+  <section id="scoresSection"
     class="hidden fixed top-6 left-1/2 transform -translate-x-1/2 w-full max-w-5xl px-6 flex justify-between bg-black bg-opacity-70 border-4 border-yellow-400 rounded-lg shadow-lg select-none text-yellow-400 font-[Press_Start_2P]">
 
     <div class="flex flex-col items-center px-4">
@@ -110,8 +61,6 @@
   <canvas id="renderCanvas"></canvas>
 
   <!-- Scripts JS -->
-  <script type="module" src="/script/game/main.js"></script>
-  <script type="module" src="/game.js"></script>
-</body>
-
-</html>
+  <script type="module" src="/script/game/main.js" defer></script>
+  <script type="module" src="/game.js" defer></script>
+</main>
