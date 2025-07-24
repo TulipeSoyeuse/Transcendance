@@ -19,8 +19,10 @@ export class GameLogic {
     sideRightZone!: Mesh;
 
     scoreText: TextBlock;
+    mode: string;
 
-    constructor(gameScene: GameScene, player1: Player, player2: Player) {
+    constructor(gameScene: GameScene, player1: Player, player2: Player, mode: string) {
+        this.mode = mode;
         this.scene = gameScene.scene;
         this.ball = gameScene.ball;
         this.floor = gameScene.ground;
@@ -29,7 +31,6 @@ export class GameLogic {
         this.player2 = player2;
         this.scoreText.text = "Score: 0";
 
-        // Limiter la vitesse de la balle
         this.scene.onBeforeRenderObservable.add(() => {
             const maxSpeed = 13;
             if (this.ball.physicsImpostor) {
@@ -44,6 +45,24 @@ export class GameLogic {
         this._createLimits();
         this._initBallSuperviseur();
     }
+
+
+    private emitToPlayers(event: string, data: any): void {
+        const players = [this.player1, this.player2];
+    
+        players.forEach((player, index) => {
+            // if (!player?.socket || !player.socket.connected) {
+            //     console.warn(`Socket du joueur ${index + 1} est invalide ou déconnecté.`);
+            //     return;
+            // }
+    
+            if (this.mode === "local" && player.username === "guest")
+                return; // skip guest en local
+    
+            player.socket.emit(event, data);
+        });
+    }
+    
 
     //TODO : souci sur les limites : bordure mal configurée 
     private _createLimits(): void {
@@ -107,10 +126,18 @@ export class GameLogic {
     //TODO : controler le decalage entre la balle du front et la balle du back
     private _initBallSuperviseur(): void {
         //update de la balle envoye par le client
-        this.player1.socket.on("ballPositionUpdate", (pos: { x: number; y: number; z: number }) => {
+        this.player1.socket.on("ballPositionUpdate", (pos: any) => {
             this.ball.position.set(pos.x, pos.y, pos.z);
+            this.emitToPlayers("ballPositionUpdate", pos);
         });
-    
+        //TODO: mieux gerer le emit entre le local et le remote
+        if(this.mode == "remote") {
+        this.player2.socket.on("ballPositionUpdate", (pos: any) => {
+            this.ball.position.set(pos.x, pos.y, pos.z);
+            this.emitToPlayers("ballPositionUpdate", pos);
+        });
+    }
+        
         // point + service 
         this.scene.registerBeforeRender(() => {
             if (this.ball.intersectsMesh(this.leftZone, false)) {
@@ -143,7 +170,7 @@ export class GameLogic {
             ball: this.ball.position
         };
 
-        this.player1.socket.emit("updateScore", scoreData);
+        this.emitToPlayers("updateScore", scoreData);
     }
 
 

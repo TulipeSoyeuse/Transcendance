@@ -30,6 +30,7 @@ export class Database extends sqlite3.Database {
 export default fp(async function (fastify, options) {
     const db = new Database("src/db/db.sqlite3");
     const __dirname = import.meta.dirname;
+    console.log("dirname: ", __dirname);
     const schema = fs.readFileSync(path.join(__dirname, "../db/schema.sql"), "utf8");
     db.exec(schema, (err) => {
         if (err) {

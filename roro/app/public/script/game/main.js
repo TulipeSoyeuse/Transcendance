@@ -28,6 +28,7 @@ function sendBallPositionRealtime(scene) {
     }, 50);
 }
 async function initScene() {
+    console.log("koukou");
     // Récupérer le canvas
     const canvas = document.getElementById("renderCanvas");
     // Créer le moteur Babylon

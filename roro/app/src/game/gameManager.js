@@ -28,79 +28,116 @@ export class GameManager {
             __classPrivateFieldGet(this, _a, "f", _GameManager_instance).configureSocketIO(server);
             __classPrivateFieldGet(this, _a, "f", _GameManager_instance).fastify = server;
             __classPrivateFieldGet(this, _a, "f", _GameManager_instance).waitList = new WaitList();
+            //captation de l'événement de WaitList pour créer une room
+            __classPrivateFieldGet(this, _a, "f", _GameManager_instance).waitList.on('RemoteMatchCreated', ({ player1, player2 }) => {
+                console.log("Player 1: ", player1, "player 2: ", player2);
+                __classPrivateFieldGet(this, _a, "f", _GameManager_instance).handleNewRoom(player1, player2);
+            });
         }
         return __classPrivateFieldGet(this, _a, "f", _GameManager_instance);
     }
     ;
-    // ! Session id : souci de la reconnaissance des joueurs: sessionId recupérée dans deux fenêtres avec des joueurs différents
-    //TODO : gerer lancer une partie sans etre connecté
-    //TODO : la connection se deconnecte une fois que on sort de la page game.ts (trouver une solution pour ce souci de connexion socket + fastifysession)
-    configureSocketIO(server) {
-        server.ready().then(() => {
-            server.io.on("connection", (socket) => {
-                socket.on("ping_check", (start) => {
-                    socket.emit("pong_check", start);
-                });
-                const cookies = cookie.parse(socket.handshake.headers.cookie || "");
-                const sessionId = cookies.sessionId;
-                if (sessionId) {
-                    const sessionKey = sessionId.split('.')[0];
-                    // Vérifie si le joueur est déjà présent dans ma map           
-                    let player = this.mapPlayer.get(sessionKey);
-                    if (!player) {
-                        player = {
-                            session: undefined,
-                            socket: socket,
-                            username: undefined,
-                            online: true,
-                        };
-                        this.mapPlayer.set(sessionKey, player);
-                    }
-                    else {
-                        player.socket = socket;
-                        player.online = true;
-                    }
-                    console.log(`Player with session ${sessionKey} is now online.`);
-                    // Gestion de la déconnexion
-                    socket.on("disconnect", (reason) => {
-                        console.log(`Player with session ${sessionKey} disconnected: ${reason}`);
-                        const p = this.mapPlayer.get(sessionKey);
-                        if (p) {
-                            p.online = false;
-                            p.socket = null;
-                        }
-                    });
-                }
-                else {
-                    console.log("Pas de sessionId dans les cookies, impossible d'identifier le joueur.");
-                }
-            });
-        });
+    handleNewRoom(player1, player2) {
+        const room = new Room("remote", player1, player2);
+        this.rooms.push(room);
     }
-    async socketPlayerMatch(userSession) {
-        const value = this.mapPlayer.get(userSession.sessionId);
-        if (!value) {
-            console.log("Pas de session");
-            return;
-        }
-        value.session = userSession;
-        const userId = userSession.userId;
-        if (!this.fastify)
-            return value;
-        const username = await new Promise((resolve, reject) => {
+    async getUsername(userId) {
+        return new Promise((resolve, reject) => {
             this.fastify.database.get('SELECT username FROM user WHERE id = ?', [userId], (err, row) => {
-                if (err || !row) {
-                    reject(err || new Error("No row"));
+                if (err) {
+                    reject(new Error("Erreur lors de la récupération du username: " + err.message));
+                }
+                else if (!row || !row.username) {
+                    reject(new Error("Aucun utilisateur trouvé pour cet ID"));
                 }
                 else {
                     resolve(row.username);
                 }
             });
         });
-        value.username = username;
-        console.log("Username :", username);
-        console.log("profile player completed!");
-        return value;
+    }
+    configureSocketIO(server) {
+        server.ready().then(() => {
+            server.io.on("connection", (socket) => {
+                console.log("Nouvelle connexion socket.io");
+                const cookies = cookie.parse(socket.handshake.headers.cookie || "");
+                const rawSessionId = cookies.sessionId;
+                if (!rawSessionId) {
+                    console.warn("Aucun cookie de session trouvé");
+                    return;
+                }
+                const sessionKey = rawSessionId.startsWith("s:")
+                    ? rawSessionId.slice(2).split('.')[0]
+                    : rawSessionId.split('.')[0];
+                this.fastify?.database.get(`SELECT session FROM session WHERE sid = ?`, [sessionKey], async (err, row) => {
+                    if (err) {
+                        console.error("Erreur SQL lors de la récupération de la session :", err.message);
+                        return;
+                    }
+                    if (!row) {
+                        console.warn("Aucune session trouvée en base pour le SID :", sessionKey);
+                        return;
+                    }
+                    try {
+                        // ? pourquoi si j'utilise parse la j'ai toute ma session?
+                        const sessionData = JSON.parse(row.session);
+                        const userId = sessionData.userId;
+                        if (!userId) {
+                            console.warn("Session trouvée mais sans userId");
+                            return;
+                        }
+                        // Appel async pour récupérer le username depuis la base
+                        let username;
+                        try {
+                            username = await this.getUsername(userId);
+                        }
+                        catch (e) {
+                            console.warn("Impossible de récupérer le username, on utilise celui de la session si dispo");
+                            username = sessionData.username || "Inconnu";
+                        }
+                        let player = this.mapPlayer.get(userId);
+                        if (!player) {
+                            player = {
+                                session: sessionData,
+                                socket: socket,
+                                username: username,
+                                online: true,
+                            };
+                            this.mapPlayer.set(userId, player);
+                        }
+                        else {
+                            player.socket = socket;
+                            player.online = true;
+                            player.session = sessionData;
+                            player.username = username;
+                        }
+                        console.log("Connexion établie pour userId :", userId, "username :", username);
+                        socket.on("disconnect", () => {
+                            const p = this.mapPlayer.get(userId);
+                            if (p) {
+                                p.online = false;
+                                p.socket = null;
+                                console.log(`Déconnexion de ${p.username || userId}`);
+                            }
+                        });
+                    }
+                    catch (parseError) {
+                        console.error("Erreur lors du parsing JSON de la session :", parseError);
+                    }
+                });
+            });
+        });
+    }
+    async socketPlayerMatch(userSession) {
+        // recuperer mon player: deja enregistré
+        if (userSession.userId) {
+            const value = this.mapPlayer.get(userSession.userId);
+            if (!value) {
+                console.log("Pas de session");
+                return;
+            }
+            return value;
+        }
     }
     // DEBUG
     listConnectedPlayers() {
@@ -126,7 +163,6 @@ export class GameManager {
         }
         if (mode === "remote") {
             this.listConnectedPlayers();
-            //appel de la waitlist ici : soit mise en attente d'une connexion soit creation direct de la room 
             this.waitList.addRemote(player);
         }
     }

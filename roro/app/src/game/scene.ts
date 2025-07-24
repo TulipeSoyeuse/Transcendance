@@ -25,6 +25,24 @@ export class GameScene {
         this.RightAnimating = false;
     }
 
+
+    private emitToPlayers(player1: Player, player2: Player, event:string, data:any) {
+        const players = [this.player1, this.player2];
+    
+        players.forEach((player, index) => {
+            //TODO: checker la validité du socket autrement
+            // if (!player?.socket || !player.socket.connected) {
+            //     console.warn(`Socket du joueur ${index + 1} est invalide ou déconnecté.`);
+            //     return;
+            // }
+    
+            if (this.mode === "local" && player.username === "guest")
+                return; // skip guest en local
+    
+            player.socket.emit(event, data);
+        });
+    }
+
     //TODO : trouver une plus jolie maniere de faire ca 
     static async create(): Promise<GameScene> {
         const instance = new GameScene();
@@ -115,7 +133,7 @@ export class GameScene {
         return paddle;
     }
 
-    moovePaddle(playerId: string, direction: string, players: Player) {
+    moovePaddle(playerId: string, direction: string, player1: Player, player2: Player) {
         switch (direction) {
             // paddle moove
             case "o" : 
@@ -135,7 +153,7 @@ export class GameScene {
             case "p" : 
                 if (!this.leftAnimating) {
                     this.leftAnimating = true;
-                    this.animateLeftPaddle(players, () => {
+                    this.animateLeftPaddle(player1, player2, () => {
                     this.leftAnimating = false;
                     });
                 }
@@ -143,7 +161,7 @@ export class GameScene {
             case "d" : 
             if (!this.RightAnimating) {
                 this.RightAnimating = true;
-                this.animateRightPaddle(players, () => {
+                this.animateRightPaddle(player1, player2, () => {
                 this.RightAnimating = false;
                 });
             }
@@ -168,7 +186,7 @@ export class GameScene {
         };
     }
 
-    animateLeftPaddle(players: Player, onComplete: any) {
+    animateLeftPaddle(player1: Player, player2: Player, onComplete: any) {
         if (!this.leftPaddle) {
             console.error("Left paddle doesn't exist");
             if (onComplete) onComplete();
@@ -198,13 +216,9 @@ export class GameScene {
     
         const anim = this.scene.beginAnimation(this.leftPaddle, 0, 20, false);
 
-
-        if (!players.socket.connected) {
-            console.error("Player socket is disconnected");
-        }
         const observable = this.scene.onBeforeRenderObservable.add(() => {
             const sceneState = this.getSceneState();
-            players.socket.emit("animationUpdate", sceneState);
+            this.emitToPlayers(player1, player2, "animationUpdate", sceneState)
         });
     
         anim.onAnimationEnd = () => {
@@ -214,7 +228,7 @@ export class GameScene {
     }
 
 
-    animateRightPaddle(players: Player, onComplete: any) {
+    animateRightPaddle(player1: Player, player2: Player, onComplete: any){
         if (!this.rightPaddle) {
             console.error("Left paddle doesn't exist");
             if (onComplete) onComplete();
@@ -244,14 +258,11 @@ export class GameScene {
     
         const anim = this.scene.beginAnimation(this.rightPaddle, 0, 20, false);
 
-
-        if (!players.socket.connected) {
-            console.error("Player socket is disconnected");
-        }
         const observable = this.scene.onBeforeRenderObservable.add(() => {
             const sceneState = this.getSceneState();
-            players.socket.emit("animationUpdate", sceneState);
+            this.emitToPlayers(player1, player2, "animationUpdate", sceneState)
         });
+
     
         anim.onAnimationEnd = () => {
             this.scene.onBeforeRenderObservable.remove(observable); 

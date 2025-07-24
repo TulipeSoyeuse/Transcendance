@@ -7,35 +7,47 @@ export class Room {
         this.isActive = true;
         this.players.push(player1);
         this.players.push(player2);
+        this.mode = mode;
         GameScene.create().then((scene) => {
             this.gameScene = scene;
-            this.gameLogic = new GameLogic(this.gameScene, this.players[0], this.players[1]);
+            this.gameLogic = new GameLogic(this.gameScene, this.players[0], this.players[1], mode);
             this.keyPressedListener();
             this.checkMatchStatus();
-            this.emitToPlayers(player1);
+            this.emitToPlayers(mode);
         }).catch((error) => {
             console.error("Failed to initialize GameScene", error);
         });
     }
-    emitToPlayers(player1) {
-        if (!player1.socket) {
-            console.error("Le joueur n'a pas de socketId");
-            return;
-        }
-        //TODO : handle local/remote
-        setInterval(() => {
+    emitToPlayers(mode) {
+        const interval = setInterval(() => {
+            if (!this.isActive) {
+                clearInterval(interval);
+                return;
+            }
             const sceneState = this.gameScene.getSceneState();
-            player1.socket.emit("sceneUpdate", sceneState);
+            for (const player of this.players) {
+                if (player.username == "guest")
+                    continue;
+                if (player.socket && player.socket.connected) {
+                    player.socket.emit("sceneUpdate", sceneState);
+                }
+            }
         }, 1000 / 30);
     }
-    //ecoute les touches pressées
-    // TODO : la connexion fonctionne, mais si elle est perdue on est obligé de revenir sur /game.ts pour en recrrer une  nouvelle
     keyPressedListener() {
-        if (!this.players[0].socket.connected)
-            console.log("Can't establish websocket connection");
-        //TODO: handle local/remote
-        this.players[0].socket.on("keyPressed", (data) => {
-            this.gameScene.moovePaddle("players1", data.key, this.players[0]);
+        this.players.forEach((player, index) => {
+            if (!player.socket?.connected) {
+                console.warn(`Socket non connectée pour le joueur ${index + 1}`);
+                return;
+            }
+            // On ignore les invités (guest)
+            if (player.username === "guest") {
+                return;
+            }
+            const paddleName = index === 0 ? "players1" : "players2";
+            player.socket.on("keyPressed", (data) => {
+                this.gameScene.moovePaddle(paddleName, data.key, this.players[0], this.players[1]);
+            });
         });
     }
     checkMatchStatus() {
@@ -51,14 +63,18 @@ export class Room {
         }, 100); // toutes les 100ms
     }
     endMatch() {
-        if (this.gameLogic.player1Score >= 7) {
-            this.winner = this.players[0];
-        }
-        else
-            this.winner = this.players[1];
         this.isActive = false;
-        //TODO : handle local/remote
-        this.players[0].socket.emit("match_ended", { message: "stop match", winner: this.winner.username });
+        this.winner = this.gameLogic.player1Score >= 7 ? this.players[0] : this.players[1];
+        for (const player of this.players) {
+            if (player.username == "guest")
+                continue;
+            if (player.socket && player.socket.connected) {
+                player.socket.emit("match_ended", {
+                    message: "stop match",
+                    winner: this.winner.username,
+                });
+            }
+        }
     }
     isMatchActive() {
         return this.isActive;

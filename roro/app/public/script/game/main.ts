@@ -37,7 +37,7 @@ function sendBallPositionRealtime(scene: BABYLON.Scene) {
 
 
 async function initScene() {
-
+    console.log("koukou");
     // Récupérer le canvas
     const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
     // Créer le moteur Babylon

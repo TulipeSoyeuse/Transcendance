@@ -37,11 +37,11 @@ export default fp(async function (
 ) {
     const db = new Database("src/db/db.sqlite3");
     const __dirname = import.meta.dirname;
+    console.log("dirname: ", __dirname);
     const schema = fs.readFileSync(
         path.join(__dirname, "../db/schema.sql"),
         "utf8",
     );
-
     db.exec(schema, (err) => {
         if (err) {
             fastify.log.error("Error initializing DB:", err.message);

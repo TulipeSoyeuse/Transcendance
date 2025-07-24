@@ -1,6 +1,7 @@
 import fastifySession, { FastifySessionObject, SessionStore } from "@fastify/session";
 import cookie from "cookie";
 import { Player } from "../../includes/custom.js";
+import { EventEmitter } from 'events';
 
 function getTwoRandomPlayers(players: Player[]): [Player, Player] {
 	const shuffled = [...players];
@@ -11,10 +12,11 @@ function getTwoRandomPlayers(players: Player[]): [Player, Player] {
 	return [shuffled[0], shuffled[1]];
 }
 
-export class WaitList {
+export class WaitList extends EventEmitter{
 	private mapPlayer: Map<string, Player> = new Map<string, Player>();
 
 	constructor() {
+        super();
 		console.log("WaitList class created");
 		this.createMatch();
 	}
@@ -34,6 +36,8 @@ export class WaitList {
 				this.mapPlayer.delete(player2.session.userId);
 
 				console.log(`Match créé entre ${player1.username} et ${player2.username}`);
+                console.log("Player1: ", player1, "Player2: ", player2);
+                this.emit('RemoteMatchCreated', { player1, player2 });
 
 				if (player1.socket && player2.socket) {
 					player1.socket.emit('match_found', { opponent: player2.username });
