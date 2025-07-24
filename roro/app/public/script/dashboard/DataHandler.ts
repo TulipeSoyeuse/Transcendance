@@ -38,7 +38,7 @@ export default class DataHandler {
   }
 
   private setStats() {
-    let totalWins, currWinStreak, longestWinStreak, totalGoals;
+    let totalWins, currWinStreak, longestWinStreak, totalGoals; // !!!!!!!!!! MOVE TO BACKEND
     totalWins = currWinStreak = longestWinStreak = totalGoals = 0;
     this.stats.totalGames = this.allGames.length;
     for (const game of this.allGames) {
@@ -95,6 +95,8 @@ export default class DataHandler {
     this.setStats();
   }
 }
+
+// !! Move Datahandler to backend - only fetch stats object (instead of gamehistory array)
 
 // 1. USER DASHBOARD
 // - Total games played : array length
