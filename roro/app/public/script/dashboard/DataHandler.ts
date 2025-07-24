@@ -1,11 +1,13 @@
 interface Game {
-	username_1?: string;
-	player_1: number;
-	player_2: number;
+	id_player1: number;
+	id_player2: number;
 	score_player_1: number;
 	score_player_2: number;
-	createdAt: string;
+	current_is_player1: number;
+	created_at: string;
 	winner: number; // userid
+	username_player1: string;
+	username_player2: string;
 }
 
 export default class DataHandler {
@@ -37,6 +39,7 @@ export default class DataHandler {
 		console.log("All games = ", this.allGames); // ! DEBUG
 	}
 }
+
 
 // ! Get target usernames - JOIN TABLES
 // Organize data

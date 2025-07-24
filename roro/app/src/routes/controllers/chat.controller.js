@@ -13,7 +13,7 @@ export function getMessages(fastify) {
            m.sender_id,
            m.conversation_id
         FROM messages m
-        JOIN conversations c ON m.conversation_id = c.id
+        INNER JOIN conversations c ON m.conversation_id = c.id
         WHERE (c.user1_id = ? AND c.user2_id = ?)
         ORDER BY m.id ASC`, [user1, user2]);
             if (!messages || messages.length === 0)
