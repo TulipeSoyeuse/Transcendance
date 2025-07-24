@@ -1,4 +1,4 @@
 app/src/*.js
-*.sqlite3
 *.sqlite
+*.sqlite3
 .env
