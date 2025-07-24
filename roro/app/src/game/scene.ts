@@ -30,10 +30,11 @@ export class GameScene {
         const players = [this.player1, this.player2];
     
         players.forEach((player, index) => {
-            if (!player?.socket || !player.socket.connected) {
-                console.warn(`Socket du joueur ${index + 1} est invalide ou déconnecté.`);
-                return;
-            }
+            //TODO: checker la validité du socket autrement
+            // if (!player?.socket || !player.socket.connected) {
+            //     console.warn(`Socket du joueur ${index + 1} est invalide ou déconnecté.`);
+            //     return;
+            // }
     
             if (this.mode === "local" && player.username === "guest")
                 return; // skip guest en local

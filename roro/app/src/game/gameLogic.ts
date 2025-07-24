@@ -51,10 +51,10 @@ export class GameLogic {
         const players = [this.player1, this.player2];
     
         players.forEach((player, index) => {
-            if (!player?.socket || !player.socket.connected) {
-                console.warn(`Socket du joueur ${index + 1} est invalide ou déconnecté.`);
-                return;
-            }
+            // if (!player?.socket || !player.socket.connected) {
+            //     console.warn(`Socket du joueur ${index + 1} est invalide ou déconnecté.`);
+            //     return;
+            // }
     
             if (this.mode === "local" && player.username === "guest")
                 return; // skip guest en local
@@ -130,13 +130,14 @@ export class GameLogic {
             this.ball.position.set(pos.x, pos.y, pos.z);
             this.emitToPlayers("ballPositionUpdate", pos);
         });
-        
+        //TODO: mieux gerer le emit entre le local et le remote
+        if(this.mode == "remote") {
         this.player2.socket.on("ballPositionUpdate", (pos: any) => {
             this.ball.position.set(pos.x, pos.y, pos.z);
             this.emitToPlayers("ballPositionUpdate", pos);
         });
+    }
         
-    
         // point + service 
         this.scene.registerBeforeRender(() => {
             if (this.ball.intersectsMesh(this.leftZone, false)) {
