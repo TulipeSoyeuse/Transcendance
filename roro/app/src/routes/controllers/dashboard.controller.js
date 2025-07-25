@@ -1,5 +1,38 @@
-// GET /api/dashboard/gamehistory
-export function getGameHistory(fastify) {
+function setStats(allGames) {
+    let totalWins, currWinStreak, longestWinStreak, totalGoals;
+    totalWins = currWinStreak = longestWinStreak = totalGoals = 0;
+    for (const game of allGames) {
+        if (game.current_is_winner) {
+            totalWins++;
+            currWinStreak++;
+            totalGoals +=
+                game.winner === game.id_player1
+                    ? game.score_player_1
+                    : game.score_player_2;
+        }
+        else {
+            if (currWinStreak > longestWinStreak)
+                longestWinStreak = currWinStreak;
+            currWinStreak = 0;
+            totalGoals += !(game.winner === game.id_player1)
+                ? game.score_player_1
+                : game.score_player_2;
+        }
+    }
+    if (currWinStreak > longestWinStreak)
+        longestWinStreak = currWinStreak;
+    const stats = {
+        totalGames: allGames.length,
+        winRate: (totalWins * 100) / allGames.length, // %
+        currentWinStreak: currWinStreak, // n games
+        longestWinStreak: longestWinStreak,
+        totalGoalsScored: totalGoals,
+    };
+    return (stats);
+    // console.log("STATS = ", stats); // ! DEBUG
+}
+// GET /api/dashboard/stats
+export function getStats(fastify) {
     return async function (request, reply) {
         try {
             const currentUserId = request.session.userId;
@@ -21,10 +54,11 @@ export function getGameHistory(fastify) {
 				ORDER BY m.id ASC`, [currentUserId, currentUserId, currentUserId]);
             if (!allGames)
                 return reply.status(404).send({ message: "No games played" });
-            return reply.send(allGames);
+            const stats = setStats(allGames);
+            return (reply.send(stats));
         }
         catch (err) {
-            console.error("Failed to fetch conversation", err);
+            console.error("Failed to fetch stats", err);
             reply.status(500).send({ error: "Database error" });
         }
     };

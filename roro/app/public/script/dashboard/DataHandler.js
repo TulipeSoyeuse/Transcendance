@@ -11,10 +11,10 @@ export default class DataHandler {
         this.initStats();
     }
     getStats() {
-        return (this.stats);
+        return this.stats;
     }
     setStats() {
-        let totalWins, currWinStreak, longestWinStreak, totalGoals;
+        let totalWins, currWinStreak, longestWinStreak, totalGoals; // !!!!!!!!!! MOVE TO BACKEND
         totalWins = currWinStreak = longestWinStreak = totalGoals = 0;
         this.stats.totalGames = this.allGames.length;
         for (const game of this.allGames) {
@@ -23,13 +23,18 @@ export default class DataHandler {
                 console.log("TEST2"); // ! DEBUG
                 totalWins++;
                 currWinStreak++;
-                totalGoals += (game.winner === game.id_player1) ? game.score_player_1 : game.score_player_2;
+                totalGoals +=
+                    game.winner === game.id_player1
+                        ? game.score_player_1
+                        : game.score_player_2;
             }
             else {
                 if (currWinStreak > longestWinStreak)
                     longestWinStreak = currWinStreak;
                 currWinStreak = 0;
-                totalGoals += !(game.winner === game.id_player1) ? game.score_player_1 : game.score_player_2;
+                totalGoals += !(game.winner === game.id_player1)
+                    ? game.score_player_1
+                    : game.score_player_2;
             }
         }
         if (currWinStreak > longestWinStreak)
@@ -37,28 +42,27 @@ export default class DataHandler {
         this.stats.currentWinStreak = currWinStreak;
         this.stats.longestWinStreak = longestWinStreak;
         this.stats.totalGoalsScored = totalGoals;
-        this.stats.winRate = totalWins * 100 / this.stats.totalGames;
+        this.stats.winRate = (totalWins * 100) / this.stats.totalGames;
         console.log("STATS = ", this.stats); // ! DEBUG
     }
-    async fetchGamehistory() {
+    async fetchstats() {
         try {
-            const res = await fetch(`/api/dashboard/gamehistory`);
+            const res = await fetch(`/api/dashboard/stats`);
             const data = await res.json();
             if (res.status === 404 || res.status === 500) {
                 console.log(data.message);
                 return null;
             }
-            ;
             console.log("DATA FETCHED = ", data); // ! DEBUG
-            return (data);
+            return data;
         }
         catch (err) {
             console.error("Failed to fetch or parse JSON:", err);
-            return (null);
+            return null;
         }
     }
     async getAllGames() {
-        const data = await this.fetchGamehistory();
+        const data = await this.fetchstats();
         if (!data)
             return;
         this.allGames = data;
@@ -69,10 +73,11 @@ export default class DataHandler {
         this.setStats();
     }
 }
+// !! Move Datahandler to backend - only fetch stats object (instead of gamehistory array)
 // 1. USER DASHBOARD
 // - Total games played : array length
 // - Win rate: loop over array & count Winnner OR ? map new array & count length
-// - Current win streak: loop from last index until 
+// - Current win streak: loop from last index until
 // - Longest win streak
 // - Total goals scored
 // 1. Organize data - OK

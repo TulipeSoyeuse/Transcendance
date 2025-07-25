@@ -1,4 +1,3 @@
-import DataHandler from "./DataHandler.js";
 function renderBarChart() {
     const ctx = document.getElementById('bar-chart');
     if (!ctx)
@@ -30,17 +29,39 @@ function renderBarChart() {
         }
     });
 }
-export default function displayDashboard() {
-    const dataHandler = new DataHandler();
-    if (!dataHandler) {
-        console.error("DataHandler instance could not be created");
-        return;
+async function fetchStats() {
+    try {
+        const res = await fetch(`/api/dashboard/stats`);
+        const data = await res.json();
+        if (res.status === 404 || res.status === 500) {
+            console.log(data.message);
+            return (null);
+        }
+        console.log("DATA FETCHED = ", data); // ! DEBUG
+        return data;
     }
+    catch (err) {
+        console.error("Failed to fetch or parse JSON:", err);
+        return (null);
+    }
+}
+export default async function displayDashboard() {
+    const stats = await fetchStats();
+    console.log("STATS = ", stats);
     renderBarChart();
     // renderLineGraph();
     // renderPieChart();
     // renderStats();
 }
+// 1. USER DASHBOARD
+// - Total games played : array length
+// - Win rate: loop over array & count Winnner OR ? map new array & count length
+// - Current win streak: loop from last index until
+// - Longest win streak
+// - Total goals scored
+// 1. Organize data - OK
+// 2. Render charts & graphs
+// 3. Check treeshaking
 /*
 1. USER DASHBOARD
 - Total games played

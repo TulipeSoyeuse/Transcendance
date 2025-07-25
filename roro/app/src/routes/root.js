@@ -1,8 +1,8 @@
-import { getRoot, getGame, getAccount, navbar, getChat, getDashboard } from "./controllers/root.controller.js";
+import { getRoot, getGame, getAccount, navbar, getChat, getDashboard, } from "./controllers/root.controller.js";
 import { check_user, is_logged } from "./controllers/api.controller.js";
 import { register, login, logout } from "./controllers/auth.controller.js";
 import { getMessages, getBlocked } from "./controllers/chat.controller.js";
-import { getGameHistory } from "./controllers/dashboard.controller.js";
+import { getStats } from "./controllers/dashboard.controller.js";
 /**
  * A plugin that provide encapsulated routes
  * @param {FastifyInstance} fastify encapsulated fastify instance
@@ -40,6 +40,6 @@ async function api(fastify, options) {
     fastify.get("/api/chat/messages", getMessages(fastify));
     fastify.get("/api/chat/blocked", getBlocked(fastify));
     // api/dashboard
-    fastify.get("/api/dashboard/gamehistory", getGameHistory(fastify));
+    fastify.get("/api/dashboard/stats", getStats(fastify));
 }
 export default { routes, api, auth };

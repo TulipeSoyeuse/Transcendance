@@ -67,9 +67,9 @@ export default class DataHandler {
     console.log("STATS = ", this.stats); // ! DEBUG
   }
 
-  private async fetchGamehistory(): Promise<Game[] | null> {
+  private async fetchstats(): Promise<Game[] | null> {
     try {
-      const res = await fetch(`/api/dashboard/gamehistory`);
+      const res = await fetch(`/api/dashboard/stats`);
       const data = await res.json();
       if (res.status === 404 || res.status === 500) {
         console.log(data.message);
@@ -84,7 +84,7 @@ export default class DataHandler {
   }
 
   private async getAllGames() {
-    const data = await this.fetchGamehistory();
+    const data = await this.fetchstats();
     if (!data) return;
     this.allGames = data as Game[];
     console.log("All games = ", this.allGames); // ! DEBUG
